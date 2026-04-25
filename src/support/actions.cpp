@@ -44,11 +44,6 @@ const QString OP_TEMPLATE = QString{R"(
         <b>Userdata2:</b> %4<br>
         )"};
 
-void append_separated(QString& s, const QString& arg) {
-    if(!s.isEmpty()) s.append(" | ");
-    s.append(arg);
-}
-
 QString optype_tostring(const RDOperand* op) {
     switch(op->kind) {
         case RD_OP_REG: return "OP_REG";
@@ -64,13 +59,17 @@ QString optype_tostring(const RDOperand* op) {
 }
 
 QString instrfeatures_tostring(const RDInstruction* instr) {
-    QString f;
-    if(instr->features & RD_IF_JUMP) append_separated(f, "IF_JUMP");
-    if(instr->features & RD_IF_CALL) append_separated(f, "IF_CALL");
-    if(instr->features & RD_IF_STOP) append_separated(f, "IF_STOP");
-    if(instr->features & RD_IF_DSLOT) append_separated(f, "IF_DSLOT");
-    if(f.isEmpty()) f = "IF_NONE";
-    return f;
+    switch(instr->flow) {
+        case RD_IF_JUMP: return "IF_JUMP";
+        case RD_IF_JUMP_COND: return "IF_JUMP_COND";
+        case RD_IF_CALL: return "IF_CALL";
+        case RD_IF_CALL_COND: return "IF_CALL_COND";
+        case RD_IF_STOP: return "IF_STOP";
+        case RD_IF_NOP: return "IF_NOP";
+        default: break;
+    }
+
+    return "IF_NONE";
 }
 
 QString xreftype_tostring(const RDXRef& r) {

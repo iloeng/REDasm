@@ -31,7 +31,7 @@ const QHash<QString, RDThemeKind> THEMES = {
     {"segment", RD_THEME_SEGMENT}, {"function", RD_THEME_FUNCTION}, {"type", RD_THEME_TYPE},
     {"location", RD_THEME_LOCATION}, {"number", RD_THEME_NUMBER}, {"reg", RD_THEME_REG}, {"string", RD_THEME_STRING},
     {"comment", RD_THEME_COMMENT},
-    {"ret", RD_THEME_RET}, {"call", RD_THEME_CALL}, {"jump", RD_THEME_JUMP}, {"jump_cond", RD_THEME_JUMP_COND},
+    {"stop", RD_THEME_STOP}, {"jump", RD_THEME_JUMP}, {"jump_cond", RD_THEME_JUMP_COND}, {"call", RD_THEME_CALL}, {"call_cond", RD_THEME_CALL_COND},
     {"success", RD_THEME_SUCCESS}, {"fail", RD_THEME_FAIL}, {"warning", RD_THEME_WARNING}, {"muted", RD_THEME_MUTED},
     {"flag_code", RD_THEME_FLAG_CODE}, {"flag_data", RD_THEME_FLAG_DATA},
 };

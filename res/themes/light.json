@@ -15,10 +15,11 @@
 
     "comment": "#808080",
 
-    "ret": "#cd5c5c",
-    "call": "#8b4513",
+    "stop": "#cd5c5c",
     "jump": "#00008b",
     "jump_cond": "#c0392b",
+    "call": "#8b4513",
+    "call_cond": "#c0392b",
 
     "success": "#27ae60",
     "fail": "#c0392b",

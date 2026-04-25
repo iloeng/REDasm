@@ -30,10 +30,11 @@
 
     "comment": "#2ecc71",
 
-    "ret": "#c0392b",
-    "call": "#2ecc71",
+    "stop": "#c0392b",
     "jump": "#5065a1",
     "jump_cond": "#e67e22",
+    "call": "#2ecc71",
+    "call_cond": "#e74c3c",
 
     "success": "#2ecc71",
     "fail": "#e74c3c",
