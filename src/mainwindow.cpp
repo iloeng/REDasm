@@ -35,8 +35,8 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow{parent}, m_ui{this} {
     this->load_recents();
     this->update_menubar();
 
-    m_ui.statusbar->addPermanentWidget(
-        statusbar::create_status_label(new QLabel(this)), 60);
+    m_ui.statusbar->addPermanentWidget(statusbar::create_status_label(this),
+                                       60);
 
     m_ui.statusbar->addPermanentWidget(
         statusbar::create_problems_button(m_ui.statusbar->height(), this));
