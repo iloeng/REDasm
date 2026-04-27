@@ -2,23 +2,37 @@
 #include "actions.h"
 #include "support/fontawesome.h"
 #include "support/themeprovider.h"
+#include "views/surface/graph/graph.h"
+#include "views/surface/listing.h"
 #include <QClipboard>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QPainter>
-#include <QPushButton>
+#include <QStackedWidget>
 #include <QTimer>
+#include <QToolButton>
 
 namespace utils {
 
 namespace {
 
 constexpr int LOGO_SIZE = 64;
-constexpr int LOGO_MARGIN = 10;
+constexpr int LOGO_MARGIN = 5;
 constexpr int FEEDBACK_INTERVAL = 1000;
 const char* const FEEDBACK_IN_PROGRESS = "__redasm_feedback__";
 
 QPixmap copy_screenshot(QWidget* w) {
+    auto* stackw = qobject_cast<QStackedWidget*>(w);
+
+    if(stackw) { // Try to grab surfaces
+        if(auto* l = stackw->findChild<SurfaceListing*>(); l && l->isVisible())
+            w = l->viewport();
+        else if(auto* g = stackw->findChild<SurfaceGraph*>();
+                g && g->isVisible()) {
+            w = g->viewport();
+        }
+    }
+
     QPixmap logo = utils::get_logo(), scrshot = w->grab();
 
     logo = logo.scaled(utils::LOGO_SIZE, utils::LOGO_SIZE, Qt::KeepAspectRatio,
@@ -35,14 +49,14 @@ QPixmap copy_screenshot(QWidget* w) {
     return scrshot;
 }
 
-void confirm_feedback(QPushButton* pb) {
-    QIcon icon = pb->icon();
-    pb->setProperty(utils::FEEDBACK_IN_PROGRESS, true);
-    pb->setIcon(FA_ICON_COLOR(0xf00c, theme_provider::color(RD_THEME_SUCCESS)));
+void confirm_feedback(QToolButton* tb) {
+    QIcon icon = tb->icon();
+    tb->setProperty(utils::FEEDBACK_IN_PROGRESS, true);
+    tb->setIcon(FA_ICON_COLOR(0xf00c, theme_provider::color(RD_THEME_SUCCESS)));
 
-    QTimer::singleShot(utils::FEEDBACK_INTERVAL, [pb, icon]() {
-        pb->setIcon(icon);
-        pb->setProperty(utils::FEEDBACK_IN_PROGRESS, QVariant{});
+    QTimer::singleShot(utils::FEEDBACK_INTERVAL, [tb, icon]() {
+        tb->setIcon(icon);
+        tb->setProperty(utils::FEEDBACK_IN_PROGRESS, QVariant{});
     });
 }
 
@@ -84,12 +98,11 @@ QMenu* create_surface_menu(ISurface* surface) {
     return menu;
 }
 
-QPushButton* create_screenshot_button(QWidget* w) {
-    auto* pb = new QPushButton(w);
+QToolButton* create_screenshot_button(QWidget* w) {
+    auto* pb = new QToolButton(w);
     pb->setIcon(FA_ICON(0xf030));
-    pb->setFlat(true);
 
-    QObject::connect(pb, &QPushButton::clicked, w, [w, pb]() {
+    QObject::connect(pb, &QToolButton::clicked, w, [w, pb]() {
         if(!pb->property(utils::FEEDBACK_IN_PROGRESS).isNull()) return;
 
         QPixmap s = utils::copy_screenshot(w);

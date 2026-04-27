@@ -16,7 +16,6 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
     m_surface = rd_surface_create(ctx, RD_RF_DEFAULT);
     m_popup = new SurfacePopup(ctx, this);
 
-    this->setCornerWidget(utils::create_screenshot_button(this->viewport()));
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setCursor(Qt::ArrowCursor);
     this->setFrameShape(QFrame::NoFrame);

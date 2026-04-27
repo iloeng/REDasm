@@ -5,7 +5,6 @@
 SurfaceGraph::SurfaceGraph(RDContext* ctx, QWidget* parent)
     : GraphView{parent}, m_context{ctx} {
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    this->setCornerWidget(utils::create_screenshot_button(this->viewport()));
 
     m_surface = rd_surfacegraph_create(ctx, RD_RF_GRAPH);
     m_popup = new SurfacePopup(ctx, this);

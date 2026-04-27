@@ -7,6 +7,7 @@
 #include "views/surface/graph/graph.h"
 #include "views/surface/view.h"
 #include <QComboBox>
+#include <QToolButton>
 
 namespace {
 
@@ -68,17 +69,20 @@ QWidget* SurfaceSplitDelegate::create_widget(SplitWidget* current,
         FA_ICON_COLOR(0xf054, theme_provider::color(RD_THEME_SUCCESS)));
     current->add_button(actions::get(actions::GOTO));
 
-    auto* cbrendermode =
-        static_cast<QComboBox*>(current->add_widget(new QComboBox()));
-
-    cbrendermode->setFrame(false);
-    cbrendermode->addItems(QStringList{"NORMAL", "RDIL", "FLAGS"});
-
     auto* stack = new QStackedWidget();
     auto* surfaceview = new SurfaceView(m_context);
     auto* surfacegraph = new SurfaceGraph(m_context);
     stack->addWidget(surfaceview);
     stack->addWidget(surfacegraph);
+
+    QToolButton* tbscreenshot = utils::create_screenshot_button(stack);
+    current->add_widget(tbscreenshot);
+
+    auto* cbrendermode =
+        static_cast<QComboBox*>(current->add_widget(new QComboBox()));
+
+    cbrendermode->setFrame(false);
+    cbrendermode->addItems(QStringList{"NORMAL", "RDIL", "FLAGS"});
 
     QObject::connect(cbrendermode, &QComboBox::currentIndexChanged, this,
                      [current](int idx) {
