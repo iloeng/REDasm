@@ -21,5 +21,5 @@ public:
 
 private:
     RDContext* m_context;
-    RDTrackedRegisterSlice m_registers{};
+    RDTrackedRegSlice m_registers{};
 };

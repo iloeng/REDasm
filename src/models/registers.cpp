@@ -3,7 +3,7 @@
 
 RegistersModel::RegistersModel(RDContext* ctx, QObject* parent)
     : QAbstractListModel{parent}, m_context{ctx} {
-    m_registers = rd_get_all_registers(ctx);
+    m_registers = rd_get_all_reg(ctx);
 }
 
 RDAddress RegistersModel::address(const QModelIndex& index) const {
@@ -16,7 +16,7 @@ RDAddress RegistersModel::address(const QModelIndex& index) const {
 
 QVariant RegistersModel::data(const QModelIndex& index, int role) const {
     if(role == Qt::DisplayRole) {
-        const RDTrackedRegister& r = rd_slice_at(m_registers, index.row());
+        const RDTrackedReg& r = rd_slice_at(m_registers, index.row());
         const char* regname = rd_get_register_name(m_context, r.reg);
 
         switch(index.column()) {
@@ -24,7 +24,7 @@ QVariant RegistersModel::data(const QModelIndex& index, int role) const {
             case 1: return regname ? QString::fromUtf8(regname) : QString{};
 
             case 2: {
-                if(r.value != RD_REG_UNKNOWN)
+                if(r.value != RD_REGVAL_UNKNOWN)
                     return QString::number(r.value, 16);
 
                 return "N/A";
