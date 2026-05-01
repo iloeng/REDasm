@@ -19,11 +19,11 @@ QVariant RegistersModel::data(const QModelIndex& index, int role) const {
         const RDTrackedReg& tr = rd_slice_at(m_registers, index.row());
 
         switch(index.column()) {
-            case 0: return utils::to_hex_addr(tr.address);
+            case 0: return rd_to_hex(m_context, tr.address);
             case 1: return QString::fromUtf8(tr.reg.name);
 
             case 2: {
-                if(tr.reg.has_value) return QString::number(tr.reg.value, 16);
+                if(tr.reg.has_value) return rd_to_hex(m_context, tr.reg.value);
                 return "???";
             }
 
