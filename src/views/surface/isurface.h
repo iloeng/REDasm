@@ -23,6 +23,7 @@ public:
     [[nodiscard]] virtual bool can_go_forward() const = 0;
     [[nodiscard]] virtual std::optional<RDAddress> get_current_address() const = 0;
     [[nodiscard]] virtual std::optional<RDAddress> get_address_under_cursor() const = 0;
+    [[nodiscard]] virtual std::optional<RDCellData> get_cell_data_under_cursor() const = 0;
     [[nodiscard]] virtual QString get_selected_text() const = 0;
     [[nodiscard]] virtual RDSurfacePos get_position() const = 0;
     [[nodiscard]] virtual RDContext* context() = 0;

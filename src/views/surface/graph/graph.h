@@ -21,6 +21,7 @@ public:
     [[nodiscard]] QString get_selected_text() const override;
     [[nodiscard]] std::optional<RDAddress> get_current_address() const override;
     [[nodiscard]] std::optional<RDAddress> get_address_under_cursor() const override;
+    [[nodiscard]] std::optional<RDCellData> get_cell_data_under_cursor() const override;
     [[nodiscard]] bool can_go_back() const override;
     [[nodiscard]] bool can_go_forward() const override;
     [[nodiscard]] bool has_selection() const override;

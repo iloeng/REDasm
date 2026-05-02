@@ -46,6 +46,7 @@ const QString OP_TEMPLATE = QString{R"(
 
 QString optype_tostring(const RDOperand* op) {
     switch(op->kind) {
+        case RD_OP_CNST: return "OP_CNST";
         case RD_OP_REG: return "OP_REG";
         case RD_OP_IMM: return "OP_IMM";
         case RD_OP_ADDR: return "OP_ADDR";
@@ -145,6 +146,12 @@ void show_details() {
                                 .arg(rd_to_hex(cv->context(), op->userdata2));
 
             switch(op->kind) {
+                case RD_OP_CNST: {
+                    strop.append(QString("<b>cnst:</b> %1<br>")
+                                     .arg(rd_to_hex(cv->context(), op->cnst)));
+                    break;
+                }
+
                 case RD_OP_REG: {
                     strop.append(QString("<b>reg:</b> %1<br>").arg(op->reg));
                     break;
@@ -299,6 +306,40 @@ void refs_to() {
     dlg->show();
 }
 
+void op_as_address() {
+    ContextView* cv = g_mainwindow->context_view();
+    if(!cv) return;
+
+    auto address = cv->surface()->get_current_address();
+    if(!address) return;
+
+    auto celldata = cv->surface()->get_cell_data_under_cursor();
+    if(!celldata || celldata->operand.index == -1) return;
+
+    const RDOperand& op = celldata->operand.value;
+    if(op.kind != RD_OP_IMM || !rd_is_address(cv->context(), op.imm)) return;
+
+    if(rd_operand_as_address(cv->context(), *address, celldata->operand.index))
+        cv->surface()->invalidate();
+}
+
+void op_as_immediate() {
+    ContextView* cv = g_mainwindow->context_view();
+    if(!cv) return;
+
+    auto address = cv->surface()->get_current_address();
+    if(!address) return;
+
+    auto celldata = cv->surface()->get_cell_data_under_cursor();
+    if(!celldata || celldata->operand.index == -1 ||
+       celldata->operand.value.kind != RD_OP_ADDR)
+        return;
+
+    if(rd_operand_as_immediate(cv->context(), *address,
+                               celldata->operand.index))
+        cv->surface()->invalidate();
+}
+
 void rename() {
     ContextView* cv = g_mainwindow->context_view();
     if(!cv) return;
@@ -343,6 +384,14 @@ void init(QMainWindow* mw) {
     g_actions[Type::COMMENT] =
         mw->addAction("Comment", QKeySequence{Qt::Key_Semicolon}, mw,
                       []() { actions::comment(); });
+
+    g_actions[Type::OP_AS_ADDRESS] =
+        mw->addAction("As Address", QKeySequence{Qt::Key_A}, mw,
+                      []() { actions::op_as_address(); });
+
+    g_actions[Type::OP_AS_IMMEDIATE] =
+        mw->addAction("As Immediate", QKeySequence{Qt::Key_I}, mw,
+                      []() { actions::op_as_immediate(); });
 
     g_actions[Type::OPEN_DETAILS] = mw->addAction(
         FA_ICON(0x3f), "Details", mw, []() { actions::show_details(); });

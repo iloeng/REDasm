@@ -284,6 +284,12 @@ std::optional<RDAddress> SurfaceListing::get_address_under_cursor() const {
     return std::nullopt;
 }
 
+std::optional<RDCellData> SurfaceListing::get_cell_data_under_cursor() const {
+    RDCellData cd;
+    if(rd_surface_get_cell_data_under_cursor(m_surface, &cd)) return cd;
+    return std::nullopt;
+}
+
 QString SurfaceListing::get_selected_text() const {
     return QString::fromUtf8(rd_surface_get_selected_text(m_surface));
 }

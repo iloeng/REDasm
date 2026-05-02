@@ -13,6 +13,9 @@ enum Type : quint8 {
     RENAME,
     COMMENT,
 
+    OP_AS_ADDRESS,
+    OP_AS_IMMEDIATE,
+
     OPEN_DETAILS,
 
     OPEN_HOME,

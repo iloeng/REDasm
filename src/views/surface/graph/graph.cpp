@@ -231,6 +231,12 @@ std::optional<RDAddress> SurfaceGraph::get_address_under_cursor() const {
     return std::nullopt;
 }
 
+std::optional<RDCellData> SurfaceGraph::get_cell_data_under_cursor() const {
+    RDCellData cd;
+    if(rd_surfacegraph_get_cell_data_under_cursor(m_surface, &cd)) return cd;
+    return std::nullopt;
+}
+
 SurfaceGraphNode* SurfaceGraph::find_node(RDAddress address) {
     for(GraphViewNode* g : m_nodes) {
         auto* sg = static_cast<SurfaceGraphNode*>(g);

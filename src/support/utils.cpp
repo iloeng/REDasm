@@ -76,6 +76,8 @@ QMenu* create_surface_menu(ISurface* surface) {
     QAction* actrefs = actions::get(actions::REFS_TO);
     QAction* actrename = actions::get(actions::RENAME);
     QAction* actcomment = actions::get(actions::COMMENT);
+    QAction* act_op_as_addr = actions::get(actions::OP_AS_ADDRESS);
+    QAction* act_op_as_imm = actions::get(actions::OP_AS_IMMEDIATE);
 
     auto* menu = new QMenu(surface->to_widget());
     menu->addAction(actcopy);
@@ -83,6 +85,9 @@ QMenu* create_surface_menu(ISurface* surface) {
     menu->addAction(actrename);
     menu->addSeparator();
     menu->addAction(actcomment);
+    menu->addAction(act_op_as_addr);
+    menu->addAction(act_op_as_imm);
+    menu->addSeparator();
     menu->addAction(actions::get(actions::GOTO));
     menu->addSeparator();
     menu->addAction(actions::get(actions::OPEN_DETAILS));
@@ -96,6 +101,16 @@ QMenu* create_surface_menu(ISurface* surface) {
         actrefs->setVisible(cursoraddr.has_value() &&
                             !rd_slice_is_empty(rd_get_xrefs_to(
                                 surface->context(), *cursoraddr)));
+
+        auto celldata = surface->get_cell_data_under_cursor();
+
+        act_op_as_addr->setVisible(
+            celldata && celldata->operand.index != -1 &&
+            celldata->operand.value.kind == RD_OP_IMM &&
+            rd_is_address(surface->context(), celldata->operand.value.imm));
+
+        act_op_as_imm->setVisible(celldata && celldata->operand.index != -1 &&
+                                  celldata->operand.value.kind == RD_OP_ADDR);
     });
 
     return menu;
