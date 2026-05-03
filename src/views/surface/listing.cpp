@@ -301,7 +301,8 @@ usize SurfaceListing::get_length() const {
 bool SurfaceListing::follow_under_cursor() {
     RDAddress address;
 
-    if(rd_surface_get_address_under_cursor(m_surface, &address)) {
+    if(rd_surface_get_address_under_cursor(m_surface, &address) &&
+       address != this->get_current_address()) {
         this->jump_to(address);
         return true;
     }
