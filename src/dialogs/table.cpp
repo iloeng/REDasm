@@ -86,3 +86,8 @@ void TableDialog::on_table_clicked(const QModelIndex& index) {
     auto* sfmodel = static_cast<QSortFilterProxyModel*>(m_ui.tvtable->model());
     Q_EMIT clicked(sfmodel->mapToSource(index));
 }
+
+void TableDialog::closeEvent(QCloseEvent* e) {
+    Q_EMIT closed();
+    QDialog::closeEvent(e);
+}

@@ -25,9 +25,13 @@ private Q_SLOTS:
     void on_table_double_clicked(const QModelIndex& index);
     void on_table_clicked(const QModelIndex& index);
 
+protected:
+    void closeEvent(QCloseEvent* e) override;
+
 Q_SIGNALS:
     void double_clicked(const QModelIndex& index);
     void clicked(const QModelIndex& index);
+    void closed();
 
 private:
     ui::TableDialog m_ui;

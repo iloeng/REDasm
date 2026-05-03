@@ -395,14 +395,22 @@ void MainWindow::show_tracked_registers() {
     ContextView* ctxview = this->context_view();
     if(!ctxview) return;
 
-    auto* dlg = new TableDialog("Tracked Registers", this);
+    static TableDialog* dlg = nullptr;
+
+    if(dlg) {
+        dlg->activateWindow();
+        return;
+    }
+
+    dlg = new TableDialog("Tracked Registers", this);
 
     connect(dlg, &TableDialog::double_clicked, this,
-            [&, ctxview, dlg](const QModelIndex& index) {
+            [&, ctxview](const QModelIndex& index) {
                 auto* m = static_cast<RegistersModel*>(dlg->model());
                 ctxview->surface()->jump_to(m->address(index));
-                dlg->accept();
             });
+
+    connect(dlg, &TableDialog::closed, this, []() { dlg = nullptr; });
 
     dlg->set_model(new RegistersModel(ctxview->context(), dlg));
     dlg->show();
