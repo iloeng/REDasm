@@ -194,7 +194,7 @@ void show_details() {
                             .arg(rd_to_hex(cv->context(), op->displ.index)));
                     strop.append(
                         QString("<b>displ:</b> %1<br>")
-                            .arg(rd_to_hex(cv->context(), op->displ.displ)));
+                            .arg(rd_to_hex(cv->context(), op->displ.offset)));
                     break;
                 }
 
