@@ -111,7 +111,7 @@ QMenu* create_surface_menu(ISurface* surface) {
 
         actrefs->setVisible(cursoraddr.has_value() &&
                             !rd_slice_is_empty(rd_get_xrefs_to(
-                                surface->context(), *cursoraddr)));
+                                surface->context(), *cursoraddr, RD_XR_NONE)));
 
         auto celldata = surface->get_cell_data_under_cursor();
 

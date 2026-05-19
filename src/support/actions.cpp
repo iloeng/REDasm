@@ -221,7 +221,7 @@ void show_details() {
         s.append(strinstr);
     }
 
-    RDXRefSlice xrefs = rd_get_xrefs_from(cv->context(), address);
+    RDXRefSlice xrefs = rd_get_xrefs_from(cv->context(), address, RD_XR_NONE);
 
     if(!rd_slice_is_empty(xrefs)) {
         s.append(QString{"<br><b>==== XREFS FROM %1 ====</b><br>"}.arg(
@@ -237,7 +237,7 @@ void show_details() {
         }
     }
 
-    xrefs = rd_get_xrefs_to(cv->context(), address);
+    xrefs = rd_get_xrefs_to(cv->context(), address, RD_XR_NONE);
 
     if(!rd_slice_is_empty(xrefs)) {
         s.append(QString{"<br><b>==== XREFS TO %1 ====</b><br>"}.arg(
