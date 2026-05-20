@@ -298,6 +298,8 @@ void refs_to() {
                      });
 
     dlg->set_model(new ReferencesModel(cv->context(), *address, dlg));
+    dlg->set_stretch_last_column(false);
+    dlg->resize_column(1, QHeaderView::Stretch);
     dlg->show();
 }
 
