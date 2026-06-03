@@ -55,12 +55,12 @@ void configure_searchpaths() {
     else {
         const QString APP_DIR = qApp->applicationDirPath();
 
-        append_unique(utils::search_paths, APP_DIR + QDir::separator() + "plugins");
-        append_unique(utils::kb_search_paths, (APP_DIR + QDir::separator() + "kb").toUtf8());
+        append_unique(utils::search_paths, APP_DIR + "/plugins");
+        append_unique(utils::kb_search_paths, (APP_DIR + "/kb").toUtf8());
 
         for(const QString& sp : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)) {
-            append_unique(utils::search_paths, sp + QDir::separator() + "plugins");
-            append_unique(utils::kb_search_paths, (sp + QDir::separator() + "kb").toUtf8());
+            append_unique(utils::search_paths, sp + "/plugins");
+            append_unique(utils::kb_search_paths, (sp + "/kb").toUtf8());
         }
     }
     // clang-format on
