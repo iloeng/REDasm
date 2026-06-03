@@ -50,7 +50,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     list(APPEND MSVC_COMPILE_OPTIONS
         "/WX"
         "/Od"
-        "/fsanitize=address"
+        # "/fsanitize=address"
     )
 endif()
 
