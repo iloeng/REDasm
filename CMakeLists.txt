@@ -122,3 +122,16 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
         COPYONLY
     )
 endif()
+
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+)
+
+install(FILES res/redasm.desktop
+    DESTINATION share/applications
+)
+
+install(FILES res/logo.png
+    DESTINATION share/icons/hicolor/256x256/apps
+)

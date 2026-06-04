@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=REDasm
+Type=Application
+Icon=redasm
+Exec=redasm-gui
+Categories=Utility;
+Comment=The OpenSource Disassembler
