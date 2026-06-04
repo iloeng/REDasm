@@ -10,7 +10,7 @@ constexpr int SCALE_TEXT = 32;
 
 const QString ABOUT_HTML = R"(
 <div><b>Qt Version:</b> %1</div>
-<div><b>Version:</b> %2</div>
+<div><b>Core Version:</b> %2</div>
 <div><b>RDAPI Level:</b> %3</div>
 <hr>
 <div><b>Search Paths</b></div>
@@ -26,7 +26,7 @@ const QString ABOUT_HTML = R"(
 )";
 
 void compile_versions(QString& html) {
-    html = html.arg(QT_VERSION_STR).arg(RD_VERSION_STR).arg(RD_API_LEVEL);
+    html = html.arg(QT_VERSION_STR).arg(rd_build_version()).arg(RD_API_LEVEL);
 }
 
 void compile_searchpaths(QString& html) {

@@ -11,8 +11,6 @@
 
 namespace {
 
-const QString REDASM_VERSION = "4.0";
-
 void on_log(RDLogLevel level, const char* tag, const char* msg,
             void* userdata) {
     auto* mw = reinterpret_cast<MainWindow*>(userdata);
@@ -116,7 +114,7 @@ int main(int argc, char** argv) {
 
     QApplication app{argc, argv};
     app.setApplicationName("redasm");
-    app.setApplicationDisplayName("REDasm " + REDASM_VERSION);
+    app.setApplicationDisplayName(QString{"REDasm %1"}.arg(rd_version()));
 
     theme_provider::apply_theme();
     surface_renderer::init();

@@ -33,7 +33,8 @@ void style_social_button(QPushButton* button, actions::Type t) {
 WelcomeView::WelcomeView(QWidget* parent): DashboardView{parent}, m_ui{this} {
     this->apply_logo(m_ui.lblbrand);
 
-    m_ui.lblversion->setText(QString{"<b>Version:</b> %1"}.arg(RD_VERSION_STR));
+    m_ui.lblversion->setText(
+        QString{"<b>Core Version:</b> %1"}.arg(rd_build_version()));
 
     m_ui.lvrecents->viewport()->setAttribute(Qt::WA_Hover);
     m_ui.lvrecents->viewport()->setBackgroundRole(QPalette::Window);
