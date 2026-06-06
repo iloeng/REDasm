@@ -8,78 +8,118 @@ namespace {
 constexpr int SCALE_LOGO = 128;
 constexpr int SCALE_TEXT = 32;
 
-const QString ABOUT_HTML = R"(
+void compile_config(QTextBrowser* txb) {
+    const QString VERSION_CONTENT = R"(
 <div><b>Qt Version:</b> %1</div>
 <div><b>Core Version:</b> %2</div>
-<div><b>RDAPI Level:</b> %3</div>
-<hr>
-<div><b>Search Paths</b></div>
-<div>%4</div>
-<hr>
-<table>
-    <tr>
-        <th align="center" valign="middle" width="50%">Loaders</th>
-        <th align="center" valign="middle" width="50%">Processors</th>
-    </tr>
-    %5
-</table>
+<div><b>RDAPI Level:</b> %3</div><br>
 )";
 
-void compile_versions(QString& html) {
-    html = html.arg(QT_VERSION_STR).arg(rd_build_version()).arg(RD_API_LEVEL);
-}
+    const QString SEARCH_PATHS_CONTENT = R"(
+<div><b>Search Paths</b></div>
+<div>%1</div>
+)";
 
-void compile_searchpaths(QString& html) {
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->insertHtml(VERSION_CONTENT.arg(QT_VERSION_STR)
+                        .arg(rd_build_version())
+                        .arg(RD_API_LEVEL));
+
     if(!utils::search_paths.isEmpty()) {
         QString lines;
 
         for(const QString& sp : utils::search_paths)
             lines.append(QString{"<div>- %1</div>"}.arg(sp));
 
-        html = html.arg(lines);
+        txb->insertHtml(SEARCH_PATHS_CONTENT.arg(lines));
     }
     else {
         // clang-format off
-        html = html.arg(QString{R"(
+        txb->insertHtml(SEARCH_PATHS_CONTENT.arg(QString{R"(
                 <font color="%1">
                     <b>No Search paths set</b>
                 </font>
-            )"}.arg(theme_provider::color(RD_THEME_FAIL).name()));
+        )"}.arg(theme_provider::color(RD_THEME_FAIL).name())));
         // clang-format on
     }
 }
 
-void compile_plugins(QString& html) {
-    RDPluginSlice pldr = rd_get_all_loader_plugins();
-    RDPluginSlice pproc = rd_get_all_processor_plugins();
-    QString plugins;
+void compile_modules(QTextBrowser* txb) {
+    const QString CONTENT = R"(
+<table>
+    <tr>
+        <th valign="middle">Path</th>
+        <th valign="middle">Version</th>
+    </tr>
+    %1
+</table>
+)";
 
-    for(usize i = 0; i < qMax(pldr.length, pproc.length); i++) {
+    QString html;
+    RDModuleSlice modules = rd_get_all_modules();
+
+    const RDModule** it;
+    rd_slice_each(it, modules) {
+        const RDModule* m = *it;
+
         QString row = R"(
-            <tr>
-                <td align="center" valign="middle">%1</td>
-                <td align="center" valign="middle">%2</td>
-            </tr>
-        )";
+                <tr>
+                    <td valign="middle">%1</td>
+                    <td valign="middle">%2</td>
+                </tr>
+            )";
 
-        if(i < rd_slice_length(pldr)) {
-            row = row.arg(QString{"%1"}.arg(rd_slice_at(pldr, i)->loader->id));
-        }
-        else
-            row = row.arg(QString{});
-
-        if(i < rd_slice_length(pproc)) {
-            row = row.arg(QString{"%1 [%2]"}
-                              .arg(rd_slice_at(pproc, i)->processor->name)
-                              .arg(rd_slice_at(pproc, i)->processor->id));
-        }
-        else
-            row = row.arg(QString{});
-
-        plugins.append(row);
+        html.append(row.arg(m->path).arg(m->version));
     }
 
-    html = html.arg(plugins);
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->setHtml(CONTENT.arg(html));
+}
+
+void compile_loaders(QTextBrowser* txb) {
+    RDPluginSlice loaders = rd_get_all_loader_plugins();
+    QString html;
+
+    const RDPlugin** it;
+    rd_slice_each(it, loaders) {
+        const RDPlugin* p = *it;
+        html.append(QString{"<div>- %1</div>"}.arg(p->loader->id));
+    }
+
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->setHtml(html);
+}
+
+void compile_processors(QTextBrowser* txb) {
+    const QString CONTENT = R"(
+<table>
+    <tr>
+        <th valign="middle" width="50%">Name</th>
+        <th valign="middle" width="50%">Id</th>
+    </tr>
+    %1
+</table>
+)";
+
+    RDPluginSlice processors = rd_get_all_processor_plugins();
+    QString html;
+
+    const RDPlugin** it;
+    rd_slice_each(it, processors) {
+        const RDPlugin* p = *it;
+
+        QString row = R"(
+                <tr>
+                    <td align="center" valign="middle">%1</td>
+                    <td align="center" valign="middle">%2</td>
+                </tr>
+            )";
+
+        html.append(row.arg(p->processor->name).arg(p->processor->id));
+    }
+
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->setHtml(CONTENT.arg(html));
 }
 
 } // namespace
@@ -91,9 +131,8 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog{parent}, m_ui{this} {
     m_ui.lbltitle->setText("The OpenSource Disassembler");
     m_ui.lbltitle->setStyleSheet(QString{"font-size: %1px"}.arg(SCALE_TEXT));
 
-    QString html = ABOUT_HTML;
-    compile_versions(html);
-    compile_searchpaths(html);
-    compile_plugins(html);
-    m_ui.txbabout->setHtml(html);
+    compile_config(m_ui.txbconfig);
+    compile_modules(m_ui.txbmodules);
+    compile_loaders(m_ui.txbloaders);
+    compile_processors(m_ui.txbprocessors);
 }
