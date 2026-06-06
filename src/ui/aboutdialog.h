@@ -13,7 +13,8 @@ namespace ui {
 struct AboutDialog {
     QDialogButtonBox* buttonbox;
     QLabel *lbllogo, *lbltitle;
-    QTextBrowser *txbconfig, *txbmodules, *txbloaders, *txbprocessors;
+    QTextBrowser *txbconfig, *txbmodules, *txbloaders, *txbprocessors,
+        *txbanalyzers, *txbcommands;
     QTabWidget* tabwidget;
 
     explicit AboutDialog(QDialog* self) {
@@ -32,6 +33,8 @@ struct AboutDialog {
         this->txbmodules = this->add_tab("Modules");
         this->txbloaders = this->add_tab("Loaders");
         this->txbprocessors = this->add_tab("Processors");
+        this->txbanalyzers = this->add_tab("Analyzers");
+        this->txbcommands = this->add_tab("Commands");
 
         this->buttonbox = new QDialogButtonBox(QDialogButtonBox::Close);
         QObject::connect(this->buttonbox, &QDialogButtonBox::rejected, self,

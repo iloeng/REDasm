@@ -122,6 +122,68 @@ void compile_processors(QTextBrowser* txb) {
     txb->setHtml(CONTENT.arg(html));
 }
 
+void compile_analyzers(QTextBrowser* txb) {
+    const QString CONTENT = R"(
+<table>
+    <tr>
+        <th valign="middle" width="50%">Name</th>
+        <th valign="middle" width="50%">Id</th>
+        <th valign="middle" width="50%">Order</th>
+    </tr>
+    %1
+</table>
+)";
+
+    RDPluginSlice analyzers = rd_get_all_analyzer_plugins();
+    QString html;
+
+    const RDPlugin** it;
+    rd_slice_each(it, analyzers) {
+        const RDPlugin* p = *it;
+
+        QString row = R"(
+                <tr>
+                    <td align="center" valign="middle">%1</td>
+                    <td align="center" valign="middle">%2</td>
+                    <td align="center" valign="middle">%3</td>
+                </tr>
+            )";
+
+        html.append(row.arg(p->analyzer->name)
+                        .arg(p->analyzer->id)
+                        .arg(p->analyzer->order));
+    }
+
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->setHtml(CONTENT.arg(html));
+}
+
+void compile_commands(QTextBrowser* txb) {
+    RDPluginSlice commands = rd_get_all_command_plugins();
+    QString html;
+
+    const RDPlugin** it;
+    rd_slice_each(it, commands) {
+        const RDPlugin* p = *it;
+        QString params;
+        const RDCommandParam* cp = p->command->params;
+
+        while(cp->name && cp->kind) {
+            if(!params.isEmpty()) params.append(", ");
+
+            params.append(rd_command_valuekind_str(cp->kind))
+                .append(" ")
+                .append(cp->name);
+            cp++;
+        }
+
+        html.append(QString("- %1(%2)").arg(p->command->id).arg(params));
+    }
+
+    txb->setLineWrapMode(QTextBrowser::NoWrap);
+    txb->setHtml(html);
+}
+
 } // namespace
 
 AboutDialog::AboutDialog(QWidget* parent): QDialog{parent}, m_ui{this} {
@@ -135,4 +197,6 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog{parent}, m_ui{this} {
     compile_modules(m_ui.txbmodules);
     compile_loaders(m_ui.txbloaders);
     compile_processors(m_ui.txbprocessors);
+    compile_analyzers(m_ui.txbanalyzers);
+    compile_commands(m_ui.txbcommands);
 }
