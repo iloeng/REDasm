@@ -1,4 +1,5 @@
-set_target_properties(${PROJECT_NAME}
+function(setup_compiler TARGET)
+set_target_properties(${TARGET}
     PROPERTIES
         EXPORT_COMPILE_COMMANDS ON
         CXX_STANDARD_REQUIRED YES
@@ -6,7 +7,7 @@ set_target_properties(${PROJECT_NAME}
         CXX_STANDARD 17
 )
 
-target_compile_features(${PROJECT_NAME}
+target_compile_features(${TARGET}
     PRIVATE
         cxx_std_17
 )
@@ -54,14 +55,15 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
 endif()
 
-target_compile_options(${PROJECT_NAME}
+target_compile_options(${TARGET}
     PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:${MSVC_COMPILE_OPTIONS}>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${NOT_MSVC_COMPILE_OPTIONS}>
 )
 
-target_link_options(${PROJECT_NAME}
+target_link_options(${TARGET}
     PUBLIC
         $<$<CXX_COMPILER_ID:MSVC>:${MSVC_LINK_OPTIONS}>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:${NOT_MSVC_LINK_OPTIONS}>
 )
+endfunction()
