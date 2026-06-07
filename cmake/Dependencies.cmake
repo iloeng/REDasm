@@ -6,7 +6,7 @@ qt_standard_project_setup()
 function(setup_dependencies)
     CPMAddPackage(
         NAME QHexView
-        GIT_TAG "master"
+        VERSION "5.1.1"
         GITHUB_REPOSITORY "Dax89/QHexView"
 
         OPTIONS 
