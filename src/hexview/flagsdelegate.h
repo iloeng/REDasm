@@ -12,9 +12,9 @@ public:
 
 public:
     QString comment(quint64 offset, quint8 b,
-                    const QHexView* hexview) const;
+                    const QHexView* hexview) const override;
     bool renderByte(quint64 offset, quint8 b, QHexCharFormat& outcf,
-                    const QHexView* hexview) const;
+                    const QHexView* hexview) const override;
 
 private:
     const RDFlagsBuffer* m_flags{nullptr};
