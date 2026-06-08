@@ -16,7 +16,7 @@ struct MemoryMapDialog {
         self->setAttribute(Qt::WA_DeleteOnClose);
         self->setWindowTitle("Memory Map");
         self->setModal(true);
-        self->resize(800, 600);
+        self->resize(1000, 600);
 
         this->cbsegments = new QComboBox();
 

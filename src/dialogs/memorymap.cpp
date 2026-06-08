@@ -1,11 +1,14 @@
 #include "memorymap.h"
 #include "hexview/flagsbuffer.h"
+#include "support/surfacerenderer.h"
 #include "support/utils.h"
 
 MemoryMapDialog::MemoryMapDialog(const RDContext* ctx, QWidget* parent)
     : QDialog{parent}, m_ui{this}, m_context{ctx} {
 
     m_flagsdelegate = new FlagsDelegate(m_ui.hexview);
+
+    m_ui.hexview->setFont(surface_renderer::get_font());
     m_ui.hexview->setDelegate(m_flagsdelegate);
 
     RDSegmentSlice segments = rd_get_all_segments(ctx);
