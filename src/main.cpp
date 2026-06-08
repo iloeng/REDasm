@@ -39,7 +39,11 @@ void configure_searchpaths() {
 
         // 2. bundled plugins
         const QString APP_DIR = QString::fromUtf8(appimage_dir);
+
+#if defined(REDASM_PLUGIN_DIR)
         append_unique(utils::search_paths, QString::fromUtf8(REDASM_PLUGIN_DIR));
+#endif
+
         append_unique(utils::kb_search_paths, (APP_DIR + "/usr/share/redasm/kb").toUtf8());
 
         // 3. system plugins
