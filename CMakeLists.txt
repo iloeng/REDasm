@@ -88,7 +88,7 @@ target_sources(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
       SHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      REDASM_PLUGIN_DIR="${CMAKE_INSTALL_FULL_LIBDIR}/redasm/plugins"
+      $<$<NOT:$<BOOL:${WIN32}>>:REDASM_PLUGIN_DIR="${CMAKE_INSTALL_FULL_LIBDIR}/redasm/plugins">
 )
 
 target_include_directories(${PROJECT_NAME}
