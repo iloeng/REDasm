@@ -24,7 +24,7 @@ void render_row(QPainter* p, RDRowSlice row, qreal y) {
 
         p->fillRect(r, bg);
         p->setPen(fg);
-        p->drawText(r, Qt::AlignCenter, QChar{c.ch});
+        p->drawText(r, Qt::AlignCenter, QChar{static_cast<char32_t>(c.cp)});
     }
 }
 
@@ -68,7 +68,7 @@ void render(QPainter* p, RDSurface* surface, usize start, usize n) {
 
             p->fillRect(r, bg);
             p->setPen(fg);
-            p->drawText(r, Qt::AlignCenter, QChar{c.ch});
+            p->drawText(r, Qt::AlignCenter, QChar{static_cast<char32_t>(c.cp)});
         }
     }
 }
