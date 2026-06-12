@@ -13,7 +13,7 @@ FeedbackPushButton::FeedbackPushButton(QWidget* parent)
 
     m_feedbacktext = "Done";
 
-    QObject::connect(this, &QPushButton::clicked, this, [&]() {
+    QObject::connect(this, &QPushButton::clicked, this, [this]() {
         if(!this->property(FEEDBACKPUSH_IN_PROGRESS).isNull()) return;
 
         Q_EMIT feedback();
@@ -24,7 +24,7 @@ FeedbackPushButton::FeedbackPushButton(QWidget* parent)
         this->setIcon(m_feedbackicon);
         this->setText(m_feedbacktext);
 
-        QTimer::singleShot(m_feedbackinterval, [&, icon, text]() {
+        QTimer::singleShot(m_feedbackinterval, this, [this, icon, text]() {
             this->setIcon(icon);
             this->setText(text);
             this->setProperty(FEEDBACKPUSH_IN_PROGRESS, QVariant{});

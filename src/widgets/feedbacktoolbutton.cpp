@@ -11,7 +11,7 @@ FeedbackToolButton::FeedbackToolButton(QWidget* parent)
     m_feedbackicon =
         FA_ICON_COLOR(0xf00c, theme_provider::color(RD_THEME_SUCCESS));
 
-    QObject::connect(this, &QToolButton::clicked, this, [&]() {
+    QObject::connect(this, &QToolButton::clicked, this, [this]() {
         if(!this->property(FEEDBACKTOOL_IN_PROGRESS).isNull()) return;
 
         Q_EMIT feedback();
@@ -20,7 +20,7 @@ FeedbackToolButton::FeedbackToolButton(QWidget* parent)
         this->setProperty(FEEDBACKTOOL_IN_PROGRESS, true);
         this->setIcon(m_feedbackicon);
 
-        QTimer::singleShot(m_feedbackinterval, [&, icon]() {
+        QTimer::singleShot(m_feedbackinterval, this, [this, icon]() {
             this->setIcon(icon);
             this->setProperty(FEEDBACKTOOL_IN_PROGRESS, QVariant{});
         });
