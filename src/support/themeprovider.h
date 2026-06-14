@@ -12,6 +12,6 @@ QString theme(const QString& name);
 QColor graph_bg();
 QColor color(RDThemeKind kind);
 QIcon icon(const QString& name);
-void apply_theme();
+void init();
 
 } // namespace theme_provider

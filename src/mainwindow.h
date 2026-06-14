@@ -8,7 +8,8 @@ class MainWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(const RDInitParams& params, QWidget* parent = nullptr);
+    ~MainWindow() override;
     [[nodiscard]] ContextView* context_view() const;
     void log(RDLogLevel level, const QString& tag, const QString& msg);
 

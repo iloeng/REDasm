@@ -1,4 +1,5 @@
 #include "settings.h"
+#include "support/themeprovider.h"
 #include <QApplication>
 #include <QDir>
 #include <QFontDatabase>
@@ -67,8 +68,10 @@ void REDasmSettings::update_recent_files(const QString& s) {
 }
 
 QString REDasmSettings::current_theme() const {
-    return this->value(SELECTED_THEME, "light").toString();
+    QString default_theme = theme_provider::is_dark_theme() ? "dark" : "light";
+    return this->value(SELECTED_THEME, default_theme).toString();
 }
+
 QFont REDasmSettings::current_font() const {
     return this
         ->value(SELECTED_FONT,

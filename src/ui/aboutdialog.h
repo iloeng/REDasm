@@ -12,7 +12,7 @@ namespace ui {
 
 struct AboutDialog {
     QDialogButtonBox* buttonbox;
-    QLabel *lbllogo, *lbltitle;
+    QLabel* lblaboutlogo;
     QTextBrowser *txbconfig, *txbmodules, *txbloaders, *txbprocessors,
         *txbanalyzers, *txbcommands;
     QTabWidget* tabwidget;
@@ -21,12 +21,7 @@ struct AboutDialog {
         self->resize(800, 600);
         self->setAttribute(Qt::WA_DeleteOnClose);
 
-        this->lbllogo = new QLabel();
-        this->lbltitle = new QLabel();
-
-        auto* hbox = new QHBoxLayout();
-        hbox->addWidget(this->lbllogo);
-        hbox->addWidget(this->lbltitle, 1);
+        this->lblaboutlogo = new QLabel();
 
         this->tabwidget = new QTabWidget(self);
         this->txbconfig = this->add_tab("Config");
@@ -41,8 +36,8 @@ struct AboutDialog {
                          &QDialog::reject);
 
         auto* vbox = new QVBoxLayout(self);
-        vbox->addLayout(hbox);
-        vbox->addWidget(this->tabwidget);
+        vbox->addWidget(this->lblaboutlogo);
+        vbox->addWidget(this->tabwidget, 1);
         vbox->addWidget(this->buttonbox);
     }
 

@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "support/surfacerenderer.h"
 #include "support/themeprovider.h"
 #include "support/utils.h"
 #include <QApplication>
@@ -10,12 +9,6 @@
 #include <QStyleFactory>
 
 namespace {
-
-void on_log(RDLogLevel level, const char* tag, const char* msg,
-            void* userdata) {
-    auto* mw = reinterpret_cast<MainWindow*>(userdata);
-    mw->log(level, QString::fromUtf8(tag), QString::fromUtf8(msg));
-}
 
 void configure_searchpaths() {
 #if !defined(_WIN32)
@@ -124,29 +117,22 @@ int main(int argc, char** argv) {
     app.setApplicationName("redasm");
     app.setApplicationDisplayName(QString{"REDasm %1"}.arg(rd_version()));
 
-    theme_provider::apply_theme();
-    surface_renderer::init();
     int res = 0;
 
     { // Scoping makes sure that widgets and context are freed before deinit
-        MainWindow mw;
-        mw.show();
-
-        configure_searchpaths();
-        rd_set_log_callback(on_log, &mw);
+        theme_provider::init();
 
         QVector<const char*> kb_paths = get_kb_searchpaths();
-
         RDInitParams params = {};
         params.kb_paths = kb_paths.data();
-        rd_init(&params);
 
+        MainWindow mw{params};
+        configure_searchpaths();
         load_modules();
 
+        mw.show();
         res = app.exec();
-        rd_set_log_callback(nullptr, nullptr);
     }
 
-    rd_deinit();
     return res;
 }

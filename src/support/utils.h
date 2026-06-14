@@ -23,6 +23,7 @@ QString to_hex(RDAddress address, const RDSegment* seg = nullptr);
 QString confidence_text(RDConfidence c);
 QMenu* create_surface_menu(ISurface* surface);
 FeedbackToolButton* create_screenshot_button(QWidget* w);
+QPixmap get_about_logo();
 QPixmap get_logo();
 bool handle_key_press(ISurface* surface, QKeyEvent* e);
 void configure_hex_input(QLineEdit* le);

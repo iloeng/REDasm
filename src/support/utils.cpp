@@ -127,6 +127,13 @@ FeedbackToolButton* create_screenshot_button(QWidget* w) {
     return tbfeedback;
 }
 
+QPixmap get_about_logo() {
+    if(theme_provider::is_dark_theme())
+        return QPixmap{":/res/about_logo_dark.png"};
+
+    return QPixmap{":/res/about_logo.png"};
+}
+
 QPixmap get_logo() {
     if(theme_provider::is_dark_theme()) return QPixmap{":/res/logo_dark.png"};
     return QPixmap{":/res/logo.png"};

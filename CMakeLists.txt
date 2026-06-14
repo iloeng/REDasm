@@ -21,6 +21,8 @@ qt_add_resources(${PROJECT_NAME} "resources"
         res/fonts/FontAwesomeSolid6.otf
         res/themes/light.json
         res/themes/dark.json
+        res/about_logo_dark.png
+        res/about_logo.png
         res/logo_dark.png
         res/logo.png
 )

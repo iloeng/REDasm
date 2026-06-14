@@ -5,9 +5,6 @@
 
 namespace {
 
-constexpr int SCALE_LOGO = 128;
-constexpr int SCALE_TEXT = 32;
-
 void compile_config(QTextBrowser* txb) {
     const QString VERSION_CONTENT = R"(
 <div><b>Qt Version:</b> %1</div>
@@ -189,9 +186,8 @@ void compile_commands(QTextBrowser* txb) {
 AboutDialog::AboutDialog(QWidget* parent): QDialog{parent}, m_ui{this} {
     this->setWindowTitle("About REDasm");
 
-    m_ui.lbllogo->setPixmap(utils::get_logo().scaledToHeight(SCALE_LOGO));
-    m_ui.lbltitle->setText("The OpenSource Disassembler");
-    m_ui.lbltitle->setStyleSheet(QString{"font-size: %1px"}.arg(SCALE_TEXT));
+    m_ui.lblaboutlogo->setAlignment(Qt::AlignCenter);
+    m_ui.lblaboutlogo->setPixmap(utils::get_about_logo());
 
     compile_config(m_ui.txbconfig);
     compile_modules(m_ui.txbmodules);

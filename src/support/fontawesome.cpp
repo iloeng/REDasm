@@ -105,13 +105,11 @@ QIcon brand(const QChar& code, const QColor& color) {
 }
 
 QIcon icon(const QChar& code) {
-    return font_awesome::icon(
-        code, qApp->palette().color(QPalette::Normal, QPalette::ButtonText));
+    return font_awesome::icon(code, qApp->palette().color(QPalette::Text));
 }
 
 QIcon brand(const QChar& code) {
-    return font_awesome::brand(
-        code, qApp->palette().color(QPalette::Normal, QPalette::ButtonText));
+    return font_awesome::brand(code, qApp->palette().color(QPalette::Text));
 }
 
 } // namespace font_awesome

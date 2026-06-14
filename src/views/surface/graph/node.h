@@ -24,6 +24,7 @@ protected:
 private:
     [[nodiscard]] int start_row() const;
     [[nodiscard]] int end_row() const;
+    void draw_shadow(QPainter* painter, const QRect& r, bool selected);
 
 Q_SIGNALS:
     void follow_requested();

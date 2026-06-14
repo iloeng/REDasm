@@ -94,14 +94,7 @@ QString theme(const QString& name) {
 }
 
 bool is_dark_theme() {
-    QPalette p = qApp->palette();
-    QColor c = p.window().color();
-
-    double hsp = std::sqrt((0.299 * (c.red() * c.red())) +
-                           (0.587 * (c.green() * c.green())) +
-                           (0.114 * (c.blue() * c.blue())));
-
-    return hsp <= 127.5;
+    return qApp->palette().color(QPalette::Window).lightness() < 128;
 }
 
 QColor graph_bg() {
@@ -127,7 +120,7 @@ QIcon icon(const QString& name) {
                      .arg(name));
 }
 
-void apply_theme() {
+void init() {
     REDasmSettings settings;
     if(!theme_provider::load_theme(settings.current_theme())) return;
 

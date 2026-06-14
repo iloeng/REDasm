@@ -13,6 +13,7 @@
 #include "models/segments.h"
 #include "models/strings.h"
 #include "support/actions.h"
+#include "support/surfacerenderer.h"
 // #include "rdui/qtui.h"
 #include "statusbar.h"
 #include "support/settings.h"
@@ -24,8 +25,23 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-MainWindow::MainWindow(QWidget* parent): QMainWindow{parent}, m_ui{this} {
+namespace {
+
+void on_log(RDLogLevel level, const char* tag, const char* msg,
+            void* userdata) {
+    auto* mw = reinterpret_cast<MainWindow*>(userdata);
+    mw->log(level, QString::fromUtf8(tag), QString::fromUtf8(msg));
+}
+
+} // namespace
+
+MainWindow::MainWindow(const RDInitParams& params, QWidget* parent)
+    : QMainWindow{parent}, m_ui{this} {
     utils::mainwindow = this;
+
+    rd_set_log_callback(on_log, this);
+    surface_renderer::init();
+    rd_init(&params);
 
     this->setWindowIcon(utils::get_logo());
     this->load_window_state();
@@ -101,6 +117,12 @@ MainWindow::MainWindow(QWidget* parent): QMainWindow{parent}, m_ui{this} {
         ContextView* ctxview = this->context_view();
         if(ctxview) ctxview->toggle_pause();
     });
+}
+
+MainWindow::~MainWindow() {
+    delete this->context_view(); // delete immediately
+    rd_deinit();
+    rd_set_log_callback(nullptr, nullptr);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* e) {

@@ -1,5 +1,6 @@
 #include "node.h"
 #include "support/surfacerenderer.h"
+#include "support/themeprovider.h"
 #include "support/utils.h"
 #include <QApplication>
 #include <QPainter>
@@ -7,7 +8,7 @@
 
 namespace {
 
-constexpr int DROP_SHADOW_SIZE = 10;
+constexpr int DROP_SHADOW_SIZE = 6;
 
 }
 
@@ -108,21 +109,13 @@ void SurfaceGraphNode::render(QPainter* painter, usize state) {
     QRect r{QPoint{}, this->size()};
     r.adjust(BLOCK_MARGINS);
 
-    QColor shadow = painter->pen().color();
-    shadow.setAlpha(127);
+    QColor shadow = painter->pen().color().darker();
+    shadow.setAlphaF(0.2);
 
     painter->save();
     painter->translate(this->position());
 
-    if(state & SurfaceGraphNode::SELECTED) // Thicker shadow
-        painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE,
-                                     DROP_SHADOW_SIZE + 2,
-                                     DROP_SHADOW_SIZE + 2),
-                          shadow);
-    else
-        painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE,
-                                     DROP_SHADOW_SIZE, DROP_SHADOW_SIZE),
-                          shadow);
+    this->draw_shadow(painter, r, state & SurfaceGraphNode::SELECTED);
 
     painter->fillRect(r, qApp->palette().color(QPalette::Base));
 
@@ -145,4 +138,23 @@ void SurfaceGraphNode::render(QPainter* painter, usize state) {
 
     painter->drawRect(r);
     painter->restore();
+}
+
+void SurfaceGraphNode::draw_shadow(QPainter* painter, const QRect& r,
+                                   bool selected) {
+    const QColor SHADOW = theme_provider::is_dark_theme()
+                              ? QColor(255, 255, 255, 30)
+                              : QColor(0, 0, 0, 40);
+
+    if(selected) { // Thicker shadow
+        painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE,
+                                     DROP_SHADOW_SIZE + 2,
+                                     DROP_SHADOW_SIZE + 2),
+                          SHADOW);
+    }
+    else {
+        painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE,
+                                     DROP_SHADOW_SIZE, DROP_SHADOW_SIZE),
+                          SHADOW);
+    }
 }

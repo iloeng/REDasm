@@ -19,7 +19,7 @@ SurfaceView::SurfaceView(RDContext* ctx, QWidget* parent): QSplitter{parent} {
     // Shrink the left side
     auto w = qCeil(surface_renderer::cell_width()) * 8;
     this->setSizes({w, this->width() - w});
-    this->setHandleWidth(4);
+    this->setHandleWidth(6);
 
     connect(m_surfacelisting, &SurfaceListing::history_updated, this,
             &SurfaceView::history_updated);
