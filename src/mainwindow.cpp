@@ -337,7 +337,7 @@ void MainWindow::open_project(const QString& filepath) {
             workingdir.isEmpty() ? nullptr : workingdir.constData());
 
         switch(res.status) {
-            case RD_ACCEPT_OK: this->select_analyzers(res.context); return;
+            case RD_ACCEPT_OK: this->show_context_view(res.context); return;
 
             case RD_ACCEPT_FAIL:
                 QMessageBox::warning(this, "Project",
@@ -383,7 +383,7 @@ void MainWindow::open_file(const QString& filepath) {
                 rd_accept(dlgloader->sel_test, &dlgloader->accept_params);
 
             switch(res.status) {
-                case RD_ACCEPT_OK: this->show_context_view(res.context); return;
+                case RD_ACCEPT_OK: this->select_analyzers(res.context); return;
 
                 case RD_ACCEPT_FAIL:
                     QMessageBox::warning(this, "Loader", "Loading aborted");
