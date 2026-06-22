@@ -6,8 +6,7 @@
 #include "dialogs/loader.h"
 #include "dialogs/memorymap.h"
 #include "dialogs/table.h"
-#include "models/exported.h"
-#include "models/imported.h"
+#include "models/externals.h"
 #include "models/mappings.h"
 #include "models/problems.h"
 #include "models/segments.h"
@@ -62,8 +61,14 @@ MainWindow::MainWindow(const RDInitParams& params, QWidget* parent)
     connect(m_ui.actfileexit, &QAction::triggered, this, &MainWindow::close);
     connect(m_ui.actfileopen, &QAction::triggered, this,
             &MainWindow::select_file);
+    connect(m_ui.actfilesave, &QAction::triggered, this,
+            &MainWindow::save_project);
+    connect(m_ui.actfilesaveas, &QAction::triggered, this,
+            &MainWindow::save_project_as);
     connect(m_ui.actfileclose, &QAction::triggered, this,
             &MainWindow::show_welcome_view);
+    connect(m_ui.actfileexportdb, &QAction::triggered, this,
+            &MainWindow::export_db);
     connect(m_ui.actviewsegments, &QAction::triggered, this,
             &MainWindow::show_segments);
     connect(m_ui.actviewmappings, &QAction::triggered, this,
@@ -237,9 +242,12 @@ void MainWindow::show_problems() {
 }
 
 void MainWindow::show_context_view(RDContext* ctx) {
-    QFileInfo fi{m_filepath};
-    QDir::setCurrent(fi.path());
-    this->setWindowTitle(fi.fileName());
+    REDasmSettings settings;
+    settings.update_recent_files(m_filepath);
+    this->load_recents(); // reload
+
+    QDir::setCurrent(QString::fromUtf8(rd_get_working_dir(ctx)));
+    this->setWindowTitle(QString::fromUtf8(rd_get_file_name(ctx)));
 
     auto* cv = new ContextView(ctx);
     this->replace_view(cv);
@@ -285,6 +293,9 @@ bool MainWindow::can_close() const {
 }
 
 void MainWindow::enable_context_actions(bool e) { // NOLINT
+    m_ui.actfilesave->setVisible(e);
+    m_ui.actfilesaveas->setVisible(e);
+    m_ui.actfileexportdb->setVisible(e);
     m_ui.actfileclose->setVisible(e);
     m_ui.actedit->setVisible(e);
     m_ui.actview->setVisible(e);
@@ -292,6 +303,7 @@ void MainWindow::enable_context_actions(bool e) { // NOLINT
     m_ui.acttbseparator1->setVisible(e);
     m_ui.acttbseparator2->setVisible(e);
     m_ui.acttbseparator3->setVisible(e);
+    m_ui.acttbseparator4->setVisible(e);
 
     m_ui.acttoolsflc->setVisible(e);
     m_ui.acttoolsproblems->setVisible(e);
@@ -303,6 +315,8 @@ void MainWindow::enable_context_actions(bool e) { // NOLINT
     m_ui.actviewimported->setVisible(e);
     m_ui.actviewstrings->setVisible(e);
 
+    actions::get(actions::GOTO)->setVisible(e);
+
     if(!e) {
         statusbar::set_status_text(QString{});
         statusbar::problems_button()->hide();
@@ -311,29 +325,65 @@ void MainWindow::enable_context_actions(bool e) { // NOLINT
     }
 }
 
-void MainWindow::open_file(const QString& filepath) {
+void MainWindow::open_project(const QString& filepath) {
     if(filepath.isEmpty()) return;
 
     m_filepath = filepath;
+    QByteArray workingdir;
 
+    while(true) {
+        RDAcceptResult res = rd_project_load(
+            qUtf8Printable(m_filepath),
+            workingdir.isEmpty() ? nullptr : workingdir.constData());
+
+        switch(res.status) {
+            case RD_ACCEPT_OK: this->select_analyzers(res.context); return;
+
+            case RD_ACCEPT_FAIL:
+                QMessageBox::warning(this, "Project",
+                                     "Project loading aborted");
+                return;
+
+            case RD_ACCEPT_FAIL_WRITE: {
+                QString newpath = QFileDialog::getExistingDirectory(
+                    this, tr("destination is not writable, select another "
+                             "directory…"));
+
+                if(newpath.isEmpty()) {
+                    rd_reject();
+                    return;
+                }
+
+                workingdir = newpath.toUtf8();
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::open_file(const QString& filepath) {
+    if(filepath.isEmpty()) return;
+
+    if(QFileInfo{filepath}.suffix() == "rdx") {
+        this->open_project(filepath);
+        return;
+    }
+
+    m_filepath = filepath;
     RDTestResultSlice ctxslice = rd_test(qUtf8Printable(m_filepath));
     if(rd_slice_is_empty(ctxslice)) return;
-
-    REDasmSettings settings;
-    settings.update_recent_files(m_filepath);
-    this->load_recents();
 
     auto* dlgloader = new LoaderDialog(ctxslice, this);
 
     connect(dlgloader, &LoaderDialog::accepted, this, [&, dlgloader]() {
-        QByteArray dbpath;
+        QByteArray workingdir;
 
         while(true) {
             RDAcceptResult res =
                 rd_accept(dlgloader->sel_test, &dlgloader->accept_params);
 
             switch(res.status) {
-                case RD_ACCEPT_OK: this->select_analyzers(res.context); return;
+                case RD_ACCEPT_OK: this->show_context_view(res.context); return;
 
                 case RD_ACCEPT_FAIL:
                     QMessageBox::warning(this, "Loader", "Loading aborted");
@@ -341,15 +391,17 @@ void MainWindow::open_file(const QString& filepath) {
 
                 case RD_ACCEPT_FAIL_WRITE: {
                     QString newpath = QFileDialog::getExistingDirectory(
-                        this, tr("DB is not writable, select a directory..."));
+                        this, tr("destination is not writable, select another "
+                                 "directory…"));
 
                     if(newpath.isEmpty()) {
                         rd_reject();
                         return;
                     }
 
-                    dbpath = newpath.toUtf8();
-                    dlgloader->accept_params.db_path = dbpath.constData();
+                    workingdir = newpath.toUtf8();
+                    dlgloader->accept_params.working_dir =
+                        workingdir.constData();
                     break;
                 }
             }
@@ -361,8 +413,46 @@ void MainWindow::open_file(const QString& filepath) {
 }
 
 void MainWindow::select_file() {
-    QString s = QFileDialog::getOpenFileName(this, "Disassemble file...");
+    QString s = QFileDialog::getOpenFileName(this, "Disassemble file…");
     if(!s.isEmpty()) this->open_file(s);
+}
+
+void MainWindow::save_project() {
+    ContextView* cv = this->context_view();
+    if(rd_project_save(cv->context(), nullptr)) return;
+
+    QMessageBox::warning(this, "Project ",
+                         "Failed to save project\nSee log for details.");
+}
+
+void MainWindow::save_project_as() {
+    QString s = QFileDialog::getSaveFileName(this, "REDasm Project…", {},
+                                             "Database File (*.rdx)");
+    if(s.isEmpty()) return;
+
+    if(!s.endsWith(".rdx")) s.append(".rdx");
+
+    ContextView* cv = this->context_view();
+    if(rd_project_save(cv->context(), qUtf8Printable(s))) return;
+
+    QMessageBox::warning(
+        this, "Project ",
+        QString{"Failed to save project to '%1'\nSee log for details."}.arg(s));
+}
+
+void MainWindow::export_db() {
+    QString s = QFileDialog::getSaveFileName(this, "Export database…", {},
+                                             "Database File (*.db)");
+    if(s.isEmpty()) return;
+
+    if(!s.endsWith(".db")) s.append(".db");
+
+    ContextView* cv = this->context_view();
+    if(rd_export(cv->context(), qUtf8Printable(s), RD_EXPORT_DB)) return;
+
+    QMessageBox::warning(
+        this, "DB Export",
+        QString{"Database export to '%1' failed\nSee log for details."}.arg(s));
 }
 
 void MainWindow::log(RDLogLevel level, const QString& tag, // NOLINT
@@ -458,14 +548,15 @@ void MainWindow::show_exported() {
                 ContextView* cv = this->context_view();
                 if(!cv) return;
 
-                auto* m = static_cast<ExportedModel*>(dlg->source_model());
+                auto* m = static_cast<ExternalsModel*>(dlg->source_model());
                 cv->surface()->jump_to(m->address(index));
                 dlg->accept();
             });
 
-    dlg->set_model(new ExportedModel(ctxview->context(), dlg));
+    dlg->set_model(
+        new ExternalsModel(ctxview->context(), RD_EXT_EXPORTED, dlg));
     dlg->set_stretch_last_column(false);
-    dlg->resize_column(1, QHeaderView::Stretch);
+    dlg->resize_column(2, QHeaderView::Stretch);
     dlg->show();
 }
 
@@ -480,12 +571,13 @@ void MainWindow::show_imported() {
                 ContextView* cv = this->context_view();
                 if(!cv) return;
 
-                auto* m = static_cast<ImportedModel*>(dlg->source_model());
+                auto* m = static_cast<ExternalsModel*>(dlg->source_model());
                 cv->surface()->jump_to(m->address(index));
                 dlg->accept();
             });
 
-    dlg->set_model(new ImportedModel(ctxview->context(), dlg));
+    dlg->set_model(
+        new ExternalsModel(ctxview->context(), RD_EXT_IMPORTED, dlg));
     dlg->set_stretch_last_column(false);
     dlg->resize_column(2, QHeaderView::Stretch);
     dlg->show();

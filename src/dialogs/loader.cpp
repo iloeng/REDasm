@@ -38,9 +38,6 @@ LoaderDialog::LoaderDialog(RDTestResultSlice ctxslice, QWidget* parent)
     connect(m_ui.rbopenproject, &QRadioButton::clicked, this,
             &LoaderDialog::update_open_mode);
 
-    connect(m_ui.rbresumesession, &QRadioButton::clicked, this,
-            &LoaderDialog::update_open_mode);
-
     connect(m_ui.leentrypoint, &QLineEdit::textChanged, this,
             &LoaderDialog::update_entry_point);
 
@@ -120,14 +117,10 @@ void LoaderDialog::update_open_mode() {
         this->accept_params.mode = RD_AM_NEW;
     else if(m_ui.rbopenproject->isChecked())
         this->accept_params.mode = RD_AM_PROJECT;
-    else if(m_ui.rbresumesession->isChecked())
-        this->accept_params.mode = RD_AM_DATABASE;
     else
         qFatal("cannot set an open mode");
 
-    m_ui.gbloader->setEnabled(m_ui.rbnewanalysis->isChecked() ||
-                              m_ui.rbresumesession->isChecked());
-
+    m_ui.gbloader->setEnabled(m_ui.rbnewanalysis->isChecked());
     m_ui.gbaddressing->setEnabled(m_ui.rbnewanalysis->isChecked());
 }
 

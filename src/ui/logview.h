@@ -28,7 +28,7 @@ struct LogView {
         hbox->addWidget(this->tbclear);
 
         this->lefilter = new QLineEdit(self);
-        this->lefilter->setPlaceholderText("Filter...");
+        this->lefilter->setPlaceholderText("Filter…");
         this->lefilter->setClearButtonEnabled(true);
         this->lefilter->setFocusPolicy(Qt::ClickFocus);
 

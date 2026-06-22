@@ -3,11 +3,12 @@
 #include <QAbstractListModel>
 #include <redasm/redasm.h>
 
-class ExportedModel: public QAbstractListModel {
+class ExternalsModel: public QAbstractListModel {
     Q_OBJECT
 
 public:
-    explicit ExportedModel(RDContext* ctx, QObject* parent = nullptr);
+    explicit ExternalsModel(RDContext* ctx, RDExternalKind kind,
+                            QObject* parent = nullptr);
     [[nodiscard]] RDAddress address(const QModelIndex& index) const;
 
 public:
@@ -20,5 +21,5 @@ public:
 
 private:
     RDContext* m_context;
-    RDAddressSlice m_exported;
+    RDExternalSlice m_externals;
 };

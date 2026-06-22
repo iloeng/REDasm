@@ -10,7 +10,7 @@
 
 namespace {
 
-void configure_searchpaths() {
+void configure_search_paths() {
 #if !defined(_WIN32)
     const char* appimage_dir = std::getenv("APPDIR");
     bool is_appimage = appimage_dir && std::getenv("APPIMAGE");
@@ -65,7 +65,7 @@ void configure_searchpaths() {
     // clang-format on
 }
 
-QVector<const char*> get_kb_searchpaths() {
+QVector<const char*> get_kb_search_paths() {
     QVector<const char*> v;
 
     for(const QByteArray& ba : utils::kb_search_paths)
@@ -121,13 +121,13 @@ int main(int argc, char** argv) {
 
     { // Scoping makes sure that widgets and context are freed before deinit
         theme_provider::init();
+        configure_search_paths();
 
-        QVector<const char*> kb_paths = get_kb_searchpaths();
+        QVector<const char*> kb_paths = get_kb_search_paths();
         RDInitParams params = {};
         params.kb_paths = kb_paths.data();
 
         MainWindow mw{params};
-        configure_searchpaths();
         load_modules();
 
         mw.show();

@@ -367,7 +367,7 @@ void init(QMainWindow* mw) {
     g_mainwindow = static_cast<MainWindow*>(mw);
 
     g_actions[Type::GOTO] =
-        mw->addAction(FA_ICON(0xf1e5), "Goto…", QKeySequence{Qt::Key_G}, mw,
+        mw->addAction(FA_ICON(0xf1e5), "Goto", QKeySequence{Qt::Key_G}, mw,
                       []() { actions::show_goto(); });
 
     g_actions[Type::COPY] =
@@ -416,15 +416,17 @@ void init(QMainWindow* mw) {
                 QUrl{"https://github.com/redasm-dev/redasm/issues"});
         });
 
-    g_actions[Type::OPEN_ABOUT] = mw->addAction("&About", mw, []() {
-        auto* dlgabout = new AboutDialog(g_mainwindow);
-        dlgabout->show();
-    });
+    g_actions[Type::OPEN_ABOUT] =
+        mw->addAction(FA_ICON(0xf05a), "&About", mw, []() {
+            auto* dlgabout = new AboutDialog(g_mainwindow);
+            dlgabout->show();
+        });
 
-    g_actions[Type::OPEN_SETTINGS] = mw->addAction("&Settings", mw, []() {
-        auto* dlgsettings = new SettingsDialog(g_mainwindow);
-        dlgsettings->show();
-    });
+    g_actions[Type::OPEN_SETTINGS] =
+        mw->addAction(FA_ICON(0xf013), "&Settings", mw, []() {
+            auto* dlgsettings = new SettingsDialog(g_mainwindow);
+            dlgsettings->show();
+        });
 }
 
 QAction* get(Type t) {

@@ -20,7 +20,7 @@ struct LoaderDialog {
     QGroupBox *gbloader, *gbopenmode, *gbaddressing;
     QComboBox* cbprocessors;
     QSpinBox* sbminstring;
-    QRadioButton *rbnewanalysis, *rbresumesession, *rbopenproject;
+    QRadioButton *rbnewanalysis, *rbopenproject;
     QLineEdit *leentrypoint, *leoffset, *leaddress;
     QDialogButtonBox* buttonbox;
 
@@ -91,13 +91,9 @@ private:
         this->rbopenproject = new QRadioButton();
         this->rbopenproject->setText("Load project");
 
-        this->rbresumesession = new QRadioButton();
-        this->rbresumesession->setText("Resume session");
-
         auto* vbox = new QVBoxLayout(this->gbopenmode);
         vbox->addWidget(this->rbnewanalysis);
         vbox->addWidget(this->rbopenproject);
-        vbox->addWidget(this->rbresumesession);
 
         hbox->addWidget(this->gbloader, 1);
         hbox->addWidget(this->gbopenmode);

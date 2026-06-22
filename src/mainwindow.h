@@ -21,6 +21,9 @@ protected:
 
 private Q_SLOTS:
     void select_file();
+    void save_project();
+    void save_project_as();
+    void export_db();
     void show_segments();
     void show_mappings();
     void show_segment_regs();
@@ -29,6 +32,7 @@ private Q_SLOTS:
     void show_imported();
     void show_welcome_view();
     void show_problems();
+    void open_project(const QString& filepath);
     void open_file(const QString& filepath);
 
 private:

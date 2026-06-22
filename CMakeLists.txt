@@ -50,9 +50,8 @@ target_sources(${PROJECT_NAME}
         src/dialogs/table.cpp
         src/hexview/flagsbuffer.cpp
         src/hexview/flagsdelegate.cpp
-        src/models/exported.cpp
+        src/models/externals.cpp
         src/models/functions.cpp
-        src/models/imported.cpp
         src/models/mappings.cpp
         src/models/problems.cpp
         src/models/recentfiles.cpp

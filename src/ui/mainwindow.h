@@ -18,7 +18,8 @@ struct MainWindow {
     QStackedWidget* stackwidget;
     QMenu *mnufile, *mnuedit, *mnuview, *mnutools, *mnuwindow, *mnuhelp;
     QMenu *mnurecents, *mnudev;
-    QAction *actfileopen, *actfileclose, *actfileexit;
+    QAction *actfileopen, *actfilesave, *actfilesaveas, *actfileexportdb,
+        *actfileclose, *actfileexit;
     QAction* actwinrestoredefault;
     QAction *actedit, *actview, *acttools;
     QAction *acttoolsflc, *acttoolsproblems;
@@ -26,7 +27,8 @@ struct MainWindow {
     QAction *actviewmemorymap, *actviewsegments, *actviewmappings,
         *actviewsegmentregs, *actviewstrings, *actviewimported,
         *actviewexported;
-    QAction *acttbseparator1, *acttbseparator2, *acttbseparator3;
+    QAction *acttbseparator1, *acttbseparator2, *acttbseparator3,
+        *acttbseparator4;
     ::LogView* logview;
 
     explicit MainWindow(QMainWindow* self) {
@@ -55,13 +57,26 @@ struct MainWindow {
 
         this->acttools = this->mnutools->menuAction();
 
-        this->actfileopen = this->mnufile->addAction(FA_ICON(0xf07c), "&Open");
-        this->mnurecents = new QMenu("&Recent Files", menubar);
-        this->mnufile->addMenu(this->mnurecents);
+        this->actfileopen = this->mnufile->addAction(
+            FA_ICON(0xf07c), "&Open", QKeySequence{Qt::CTRL | Qt::Key_O});
+
+        this->actfilesave = this->mnufile->addAction(
+            FA_ICON(0xf0c7), "Save", QKeySequence{Qt::CTRL | Qt::Key_S});
+        this->actfilesave->setVisible(false);
+
+        this->actfilesaveas = this->mnufile->addAction(
+            "Save as…", QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_S});
+        this->actfilesaveas->setVisible(false);
+
+        this->actfileexportdb =
+            this->mnufile->addAction(FA_ICON(0xf1c0), "Export DB");
+        this->actfileexportdb->setVisible(false);
 
         this->actfileclose = this->mnufile->addAction("Close");
         this->actfileclose->setVisible(false);
 
+        this->mnurecents = new QMenu("&Recent Files", menubar);
+        this->mnufile->addMenu(this->mnurecents);
         this->mnufile->addSeparator();
         this->mnufile->addAction(actions::get(actions::OPEN_SETTINGS));
         this->actfileexit = this->mnufile->addAction("&Exit");
@@ -76,7 +91,7 @@ struct MainWindow {
             "&FLC", QKeySequence{Qt::CTRL | Qt::Key_L});
         this->acttoolsflc->setVisible(false);
 
-        this->acttbseparator3 = this->mnutools->addSeparator();
+        this->acttbseparator1 = this->mnutools->addSeparator();
 
         this->mnudev = this->mnutools->addMenu("Dev");
         this->actdevdecoder = this->mnudev->addAction("&Decoder");
@@ -116,10 +131,13 @@ struct MainWindow {
         toolbar->setFloatable(false);
         toolbar->setMovable(false);
         toolbar->addAction(this->actfileopen);
-        this->acttbseparator1 = toolbar->addSeparator();
+        toolbar->addAction(this->actfilesave);
+        this->acttbseparator2 = toolbar->addSeparator();
+        toolbar->addAction(actions::get(actions::GOTO));
+        this->acttbseparator3 = toolbar->addSeparator();
         toolbar->addAction(this->actviewsegments);
         toolbar->addAction(this->actviewmappings);
-        this->acttbseparator2 = toolbar->addSeparator();
+        this->acttbseparator4 = toolbar->addSeparator();
         toolbar->addAction(this->actviewexported);
         toolbar->addAction(this->actviewimported);
         toolbar->addAction(this->actviewstrings);
