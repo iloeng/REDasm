@@ -1,0 +1,23 @@
+name: Notify Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.RD_WORKSPACE_CI_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'redasm-dev',
+              repo: 'workspace',
+              event_type: 'release_tagged',
+              client_payload: {
+                tag: context.ref.replace('refs/tags/', '')
+              }
+            })
