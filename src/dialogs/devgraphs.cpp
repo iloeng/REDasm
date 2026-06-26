@@ -42,7 +42,7 @@ DevGraphsDialog::DevGraphsDialog(RDContext* ctx, QWidget* parent)
 }
 
 void DevGraphsDialog::copy_graph_hashes() {
-    QString s = "{\n";
+    QString s;
 
     for(int i = 0; i < m_functionsmodel->rowCount({}); i++) {
         QModelIndex index = m_functionsmodel->index(i);
@@ -56,12 +56,11 @@ void DevGraphsDialog::copy_graph_hashes() {
                      .arg(utils::to_hex(hash)));
     }
 
-    s.append("};");
     qApp->clipboard()->setText(s);
 }
 
 void DevGraphsDialog::copy_functions() {
-    QString s = "{\n";
+    QString s;
 
     for(int i = 0; i < m_functionsmodel->rowCount({}); i++) {
         QModelIndex index = m_functionsmodel->index(i);
@@ -76,7 +75,6 @@ void DevGraphsDialog::copy_functions() {
                      .arg(QString::fromUtf8(name)));
     }
 
-    s.append("};");
     qApp->clipboard()->setText(s);
 }
 
