@@ -1,6 +1,7 @@
 <div align="center">
 
-  ![Logo](https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/logo_readme_20200905.png)
+  ![Logo](https://github.com/user-attachments/assets/0dcf459c-7a9d-4093-9d8c-19d44af6e490)
+
   ![License](https://img.shields.io/badge/license-GPL--3.0-critical?style=flat-square)
   ![Version](https://img.shields.io/badge/version-4.0.0-blue?style=flat-square)
   [![Website](https://img.shields.io/badge/website-redasm.dev-informational?style=flat-square)](https://redasm.dev)
