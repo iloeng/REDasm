@@ -94,7 +94,7 @@ struct MainWindow {
         this->acttbseparator1 = this->mnutools->addSeparator();
 
         this->mnudev = this->mnutools->addMenu("Dev");
-        this->actdevdecoder = this->mnudev->addAction("&Decoder");
+        this->actdevdecoder = this->mnudev->addAction("&Decoder/Encoder");
         this->actdevgraphs = this->mnudev->addAction("&Graphs");
 
         this->mnuhelp->addAction(actions::get(actions::OPEN_ABOUT));

@@ -58,9 +58,13 @@ void LogView::append_log(const LogEntry& e, bool update) {
     QColor c;
 
     switch(e.level) {
-        case RD_LOG_DEBUG: c = theme_provider::color(RD_THEME_MUTED); break;
-        case RD_LOG_WARN: c = theme_provider::color(RD_THEME_WARNING); break;
-        case RD_LOG_FAIL: c = theme_provider::color(RD_THEME_FAIL); break;
+        case RD_LOGLEVEL_DEBUG:
+            c = theme_provider::color(RD_THEME_MUTED);
+            break;
+        case RD_LOGLEVEL_WARN:
+            c = theme_provider::color(RD_THEME_WARNING);
+            break;
+        case RD_LOGLEVEL_FAIL: c = theme_provider::color(RD_THEME_FAIL); break;
         default: c = theme_provider::color(RD_THEME_FOREGROUND); break;
     }
 

@@ -13,8 +13,9 @@ private:
     void populate_processors() const;
 
 private Q_SLOTS:
-    void check_decode();
+    void check_status();
     void do_decode();
+    void do_encode();
 
 private:
     ui::DecoderDialog m_ui;
