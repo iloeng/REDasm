@@ -21,6 +21,7 @@ enum Type : quint8 {
     OPEN_HOME,
     OPEN_DISCORD,
     OPEN_X,
+    OPEN_MASTODON,
     OPEN_GITHUB,
 
     OPEN_SETTINGS,

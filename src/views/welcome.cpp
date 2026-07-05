@@ -6,10 +6,14 @@
 
 namespace {
 
-void bind_button_to_action(QPushButton* button, actions::Type t) {
+void bind_button_to_action(QAbstractButton* button, actions::Type t) {
     QAction* act = actions::get(t);
 
-    button->setFlat(true);
+    if(auto* pb = qobject_cast<QPushButton*>(button); pb)
+        pb->setFlat(true);
+    else if(auto* tb = qobject_cast<QToolButton*>(button); pb)
+        tb->setAutoRaise(false);
+
     button->setCursor(Qt::PointingHandCursor);
     button->setIconSize({28, 28});
     button->setIcon(act->icon());
@@ -18,12 +22,13 @@ void bind_button_to_action(QPushButton* button, actions::Type t) {
     QObject::connect(button, &QPushButton::clicked, act, &QAction::trigger);
 }
 
-void style_social_button(QPushButton* button, actions::Type t) {
+void style_social_button(QToolButton* button, actions::Type t) {
     const QString SOCIAL_STYLESHEET = QString(R"(
-        QPushButton:hover { border: 1px solid; }
-        QPushButton { text-align: left; }
+        QToolButton { border: none; background: transparent; }
+        QToolButton:hover { border: 1px solid; }
     )");
 
+    button->setToolButtonStyle(Qt::ToolButtonIconOnly);
     button->setStyleSheet(SOCIAL_STYLESHEET);
     bind_button_to_action(button, t);
 }
@@ -47,10 +52,11 @@ WelcomeView::WelcomeView(QWidget* parent): DashboardView{parent}, m_ui{this} {
     this->make_bordered(m_ui.pbsettings);
     this->make_bordered(m_ui.pbabout);
 
-    style_social_button(m_ui.pbopenhome, actions::OPEN_HOME);
-    style_social_button(m_ui.pbopenx, actions::OPEN_X);
-    style_social_button(m_ui.pbopendiscord, actions::OPEN_DISCORD);
-    style_social_button(m_ui.pbopengithub, actions::OPEN_GITHUB);
+    style_social_button(m_ui.tbtnopenhome, actions::OPEN_HOME);
+    style_social_button(m_ui.tbtnopengithub, actions::OPEN_GITHUB);
+    style_social_button(m_ui.tbtnopendiscord, actions::OPEN_DISCORD);
+    style_social_button(m_ui.tbtnopenx, actions::OPEN_X);
+    style_social_button(m_ui.tbtnopenmastodon, actions::OPEN_MASTODON);
     bind_button_to_action(m_ui.pbsettings, actions::OPEN_SETTINGS);
     bind_button_to_action(m_ui.pbabout, actions::OPEN_ABOUT);
 

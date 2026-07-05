@@ -8,6 +8,7 @@
 #include <QListView>
 #include <QPushButton>
 #include <QSpacerItem>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -18,10 +19,11 @@ struct WelcomeView {
     QPushButton* pbopen;
     QPushButton* pbsettings;
     QPushButton* pbabout;
-    QPushButton* pbopenhome;
-    QPushButton* pbopengithub;
-    QPushButton* pbopendiscord;
-    QPushButton* pbopenx;
+    QToolButton* tbtnopenhome;
+    QToolButton* tbtnopengithub;
+    QToolButton* tbtnopendiscord;
+    QToolButton* tbtnopenx;
+    QToolButton* tbtnopenmastodon;
     QLabel* lblrecents;
     QLabel* lblbrand;
     QLabel* lblversion;
@@ -82,8 +84,6 @@ struct WelcomeView {
         vbox1->addWidget(this->pbabout);
 
         vbox2->addLayout(vbox1);
-        vbox2->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum,
-                                       QSizePolicy::Expanding));
 
         auto* hbox1 = new QHBoxLayout();
         hbox1->setContentsMargins(-1, -1, -1, 16);
@@ -91,23 +91,29 @@ struct WelcomeView {
                                        QSizePolicy::Minimum));
 
         auto* grid = new QGridLayout();
-        grid->setSpacing(0);
+        grid->setSpacing(8);
 
-        this->pbopenhome = new QPushButton(self);
-        grid->addWidget(this->pbopenhome, 0, 0, 1, 1);
+        this->tbtnopenhome = new QToolButton(self);
+        grid->addWidget(this->tbtnopenhome, 0, 0, 1, 1);
 
-        this->pbopengithub = new QPushButton(self);
-        grid->addWidget(this->pbopengithub, 1, 0, 1, 1);
+        this->tbtnopengithub = new QToolButton(self);
+        grid->addWidget(this->tbtnopengithub, 0, 1, 1, 1);
 
-        this->pbopendiscord = new QPushButton(self);
-        grid->addWidget(this->pbopendiscord, 2, 0, 1, 1);
+        this->tbtnopendiscord = new QToolButton(self);
+        grid->addWidget(this->tbtnopendiscord, 0, 2, 1, 1);
 
-        this->pbopenx = new QPushButton(self);
-        grid->addWidget(this->pbopenx, 3, 0, 1, 1);
+        this->tbtnopenx = new QToolButton(self);
+        grid->addWidget(this->tbtnopenx, 0, 3, 1, 1);
+
+        this->tbtnopenmastodon = new QToolButton(self);
+        grid->addWidget(this->tbtnopenmastodon, 0, 4, 1, 1);
 
         hbox1->addLayout(grid);
         hbox1->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding,
                                        QSizePolicy::Minimum));
+
+        vbox2->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum,
+                                       QSizePolicy::Expanding));
 
         vbox2->addLayout(hbox1);
         vbox2->setStretch(2, 1);

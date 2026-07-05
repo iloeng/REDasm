@@ -397,7 +397,7 @@ void init(QMainWindow* mw) {
         FA_ICON(0x3f), "Details", mw, []() { actions::show_details(); });
 
     g_actions[Type::OPEN_HOME] =
-        mw->addAction(FA_ICON(0xf015), "Homepage", mw, []() {
+        mw->addAction(FA_ICON(0xf0ac), "Homepage", mw, []() {
             QDesktopServices::openUrl(QUrl{"https://redasm.dev"});
         });
 
@@ -409,6 +409,11 @@ void init(QMainWindow* mw) {
     g_actions[Type::OPEN_X] = mw->addAction(FAB_ICON(0xe61b), "X", mw, []() {
         QDesktopServices::openUrl(QUrl{"https://x.com/re_dasm"});
     });
+
+    g_actions[Type::OPEN_MASTODON] =
+        mw->addAction(FAB_ICON(0xf4f6), "Infosec.exchange", mw, []() {
+            QDesktopServices::openUrl(QUrl{"https://infosec.exchange/@redasm"});
+        });
 
     g_actions[Type::OPEN_GITHUB] =
         mw->addAction(FAB_ICON(0xf113), "Report an Issue", mw, []() {
