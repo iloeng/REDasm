@@ -61,9 +61,10 @@ void SurfaceGraph::jump_to(RDAddress address) {
     }
 }
 
-void SurfaceGraph::invalidate() {
+bool SurfaceGraph::invalidate() {
     rd_surfacegraph_render(m_surface);
     this->update_graph();
+    return true;
 }
 
 void SurfaceGraph::set_mode(RDRenderMode m) {

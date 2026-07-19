@@ -12,7 +12,7 @@ public:
     virtual void jump_to_ep() = 0;
     virtual void jump_to(RDAddress address) = 0;
     virtual void set_mode(RDRenderMode m) = 0;
-    virtual void invalidate() = 0;
+    virtual bool invalidate() = 0;
     virtual bool go_back() = 0;
     virtual bool go_forward() = 0;
     virtual void set_position(int row, int col) = 0;

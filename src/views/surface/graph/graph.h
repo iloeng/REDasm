@@ -28,7 +28,7 @@ public:
     [[nodiscard]] RDRenderMode get_mode() const override;
     void jump_to_ep() override;
     void jump_to(RDAddress address) override;
-    void invalidate() override;
+    bool invalidate() override;
     void set_mode(RDRenderMode m) override;
     void set_position(int row, int col) override;
     void select(int row, int col) override;

@@ -2,7 +2,7 @@
 #include "support/utils.h"
 
 StringsModel::StringsModel(RDContext* ctx, QObject* parent)
-    : SymbolsFilterModel{ctx, RD_SYMBOL_STRING, true, 1, parent} {}
+    : SymbolsFilterModel{ctx, RD_SYMBOL_TYPE, true, 1, parent} {}
 
 RDAddress StringsModel::address(const QModelIndex& index) const {
     return this->symbols_model()->address(index);
@@ -12,16 +12,13 @@ QVariant StringsModel::data(const QModelIndex& index, int role) const {
     if(role == Qt::DisplayRole) {
         QModelIndex srcindex = this->mapToSource(index);
         RDContext* ctx = this->symbols_model()->context();
-        RDAddress address = this->symbols_model()->address(srcindex);
-        const RDSegment* s = rd_find_segment(ctx, address);
-
-        RDType t;
-        if(!rd_get_type(ctx, address, &t)) return {};
+        RDSymbol sym = this->symbols_model()->symbol(srcindex);
+        const RDSegment* s = rd_find_segment(ctx, sym.address);
 
         switch(index.column()) {
-            case 0: return utils::to_hex(address, s);
-            case 1: return utils::to_hex(t.count, s);
-            case 2: return QString::fromUtf8(t.name);
+            case 0: return utils::to_hex(sym.address, s);
+            case 1: return QString::number(sym.type.count);
+            case 2: return QString::fromUtf8(rd_typedef_name(sym.type.def));
 
             case 3: {
                 RDSymbol symbol = this->symbols_model()->symbol(srcindex);
@@ -29,7 +26,7 @@ QVariant StringsModel::data(const QModelIndex& index, int role) const {
             }
 
             case 4: {
-                if(rd_has_refs_to(ctx, address)) return "YES";
+                if(rd_has_refs_to(ctx, sym.address)) return "YES";
                 return "NO";
             }
 
@@ -61,3 +58,13 @@ QVariant StringsModel::headerData(int section, Qt::Orientation orientation,
 }
 
 int StringsModel::columnCount(const QModelIndex&) const { return 5; }
+
+bool StringsModel::filterAcceptsRow(int source_row,
+                                    const QModelIndex& source_parent) const {
+    if(!SymbolsFilterModel::filterAcceptsRow(source_row, source_parent))
+        return false;
+
+    QModelIndex index = this->symbols_model()->index(source_row, 2);
+    RDSymbol sym = this->symbols_model()->symbol(index);
+    return sym.kind == RD_SYMBOL_TYPE && rd_type_is_string(&sym.type);
+}

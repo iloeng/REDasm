@@ -29,4 +29,5 @@ private:
     RDSurface* m_surface;
     QPointF m_lastpos;
     usize m_nrows{N_ROWS};
+    RDAddress m_address{0};
 };

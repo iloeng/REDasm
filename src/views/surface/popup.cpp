@@ -29,7 +29,7 @@ SurfacePopup::SurfacePopup(RDContext* ctx, QWidget* parent): QWidget{parent} {
 SurfacePopup::~SurfacePopup() { rd_surface_destroy(m_surface); }
 
 bool SurfacePopup::popup(RDAddress address, const QString& hlword) {
-    if(!rd_surface_jump_to(m_surface, address)) return false;
+    m_address = address;
 
     QPoint pt = QCursor::pos();
     pt.rx() += POPUP_MARGIN;
@@ -58,7 +58,8 @@ void SurfacePopup::less_rows() {
 void SurfacePopup::render() {
     if(!m_surface) return;
 
-    rd_surface_render(m_surface, m_nrows);
+    rd_surface_set_max_rows(m_surface, m_nrows);
+    rd_surface_render(m_surface, m_address);
 
     // get actually renderer rows
     usize len = 0, n = rd_surface_get_row_count(m_surface);

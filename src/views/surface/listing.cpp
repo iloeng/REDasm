@@ -12,13 +12,12 @@
 #include <QTextDocument>
 
 SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
-    : QAbstractScrollArea{parent}, m_context{ctx} {
+    : QScrollArea64{parent}, m_context{ctx} {
     m_surface = rd_surface_create(ctx, RD_RF_DEFAULT);
     m_popup = new SurfacePopup(ctx, this);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setCursor(Qt::ArrowCursor);
-    this->setFrameShape(QFrame::NoFrame);
     this->setPalette(qApp->palette());
     this->verticalScrollBar()->setMinimum(0);
     this->verticalScrollBar()->setValue(0);
@@ -26,6 +25,7 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
     this->verticalScrollBar()->setPageStep(1);
     this->horizontalScrollBar()->setSingleStep(1);
     this->horizontalScrollBar()->setMinimum(0);
+    // this->horizontalScrollBar()->setMaximum(2000);
     this->horizontalScrollBar()->setValue(0);
 
     m_menu = utils::create_surface_menu(this);
@@ -33,11 +33,61 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
     connect(this, &SurfaceListing::customContextMenuRequested, this,
             [&](const QPoint&) { m_menu->popup(QCursor::pos()); });
 
-    connect(this->verticalScrollBar(), &QScrollBar::actionTriggered, this,
+    connect(this->verticalScrollBar(), &QScrollBar64::sliderMoved, this,
+            [&](quint64 value) {
+                RDAddressSpace aspace = rd_get_address_space(m_context);
+                if(rd_surface_render(m_surface, aspace.start + value))
+                    this->viewport()->update();
+            });
+
+    connect(this->verticalScrollBar(), &QScrollBar64::actionTriggered, this,
+            [&](int action) {
+                QScrollBar64* vbar = this->verticalScrollBar();
+
+                switch(action) {
+                    case QAbstractSlider::SliderSingleStepAdd: {
+                        if(!rd_surface_scroll(m_surface, vbar->singleStep()))
+                            return;
+
+                        break;
+                    }
+
+                    case QAbstractSlider::SliderSingleStepSub: {
+                        if(!rd_surface_scroll(m_surface, -vbar->singleStep()))
+                            return;
+
+                        break;
+                    }
+
+                    case QAbstractSlider::SliderPageStepAdd: {
+                        if(!rd_surface_scroll(m_surface, this->visible_rows()))
+                            return;
+
+                        break;
+                    }
+
+                    case QAbstractSlider::SliderPageStepSub: {
+                        if(!rd_surface_scroll(m_surface, -this->visible_rows()))
+                            return;
+
+                        break;
+                    }
+
+                    default: break;
+                }
+
+                this->viewport()->update();
+                this->sync_scroll_position();
+            });
+
+    connect(this->verticalScrollBar(), &QScrollBar64::sliderReleased, this,
+            [&]() { this->sync_scroll_position(); });
+
+    connect(this->verticalScrollBar(), &QScrollBar64::actionTriggered, this,
             [&](int) { rd_surface_clear_selection(m_surface); });
 
     this->update_scrollbars();
-    this->sync_location();
+    this->invalidate();
 }
 
 SurfaceListing::~SurfaceListing() {
@@ -68,7 +118,8 @@ void SurfaceListing::select(int row, int col) {
 
 bool SurfaceListing::go_back() {
     if(rd_surface_go_back(m_surface)) {
-        this->sync_location();
+        this->viewport()->update();
+        this->sync_scroll_position();
         Q_EMIT history_updated();
         return true;
     }
@@ -77,7 +128,8 @@ bool SurfaceListing::go_back() {
 }
 bool SurfaceListing::go_forward() {
     if(rd_surface_go_forward(m_surface)) {
-        this->sync_location();
+        this->viewport()->update();
+        this->sync_scroll_position();
         Q_EMIT history_updated();
         return true;
     }
@@ -92,19 +144,25 @@ void SurfaceListing::clear_history() {
 
 void SurfaceListing::jump_to(RDAddress address) {
     if(!rd_surface_jump_to(m_surface, address)) return;
-    this->sync_location();
+
+    this->viewport()->update();
+    this->sync_scroll_position();
     Q_EMIT history_updated();
 }
 
 void SurfaceListing::jump_to_ep() {
-    rd_surface_jump_to_ep(m_surface);
-    Q_EMIT history_updated();
-    this->sync_location();
+    RDAddress ep;
+    if(!rd_get_entry_point(m_context, &ep)) return;
+    this->jump_to(ep);
+    this->clear_history();
 }
 
-void SurfaceListing::invalidate() {
-    this->update_scrollbars();
+bool SurfaceListing::invalidate() {
+    if(!rd_surface_repaint(m_surface)) return false;
+
     this->viewport()->update();
+    this->sync_scroll_position();
+    return true;
 }
 
 void SurfaceListing::mouseDoubleClickEvent(QMouseEvent* e) {
@@ -112,11 +170,11 @@ void SurfaceListing::mouseDoubleClickEvent(QMouseEvent* e) {
         if(!this->follow_under_cursor()) {
             RDSurfacePos p = this->get_surface_coords(e->pos());
             if(rd_surface_select_word(m_surface, p.row, p.col))
-                this->viewport()->update();
+                this->invalidate();
         }
-    }
 
-    QAbstractScrollArea::mouseDoubleClickEvent(e);
+        e->accept();
+    }
 }
 
 void SurfaceListing::mousePressEvent(QMouseEvent* e) {
@@ -126,7 +184,7 @@ void SurfaceListing::mousePressEvent(QMouseEvent* e) {
                 RDSurfacePos p = this->get_surface_coords(e->pos());
                 rd_surface_set_pos(m_surface, p.row, p.col);
                 Q_EMIT history_updated();
-                this->viewport()->update();
+                this->invalidate();
                 break;
             }
 
@@ -137,37 +195,61 @@ void SurfaceListing::mousePressEvent(QMouseEvent* e) {
 
         e->accept();
     }
-
-    QAbstractScrollArea::mousePressEvent(e);
 }
 
 void SurfaceListing::mouseMoveEvent(QMouseEvent* e) {
     if(m_surface && (e->buttons() == Qt::LeftButton)) {
         RDSurfacePos p = this->get_surface_coords(e->pos());
-        if(rd_surface_select(m_surface, p.row, p.col))
-            this->viewport()->update();
+        if(rd_surface_select(m_surface, p.row, p.col)) this->invalidate();
         e->accept();
         return;
     }
-
-    QAbstractScrollArea::mouseMoveEvent(e);
 }
 
 void SurfaceListing::resizeEvent(QResizeEvent* e) {
-    this->update_scrollbars();
-    QAbstractScrollArea::resizeEvent(e);
+    e->accept();
 
+    rd_surface_set_max_rows(m_surface,
+                            static_cast<usize>(this->visible_rows()));
     rd_surface_set_columns(m_surface, this->visible_columns());
-    this->viewport()->update();
+
+    this->update_scrollbars();
+    this->invalidate();
+}
+
+void SurfaceListing::wheelEvent(QWheelEvent* e) {
+    if(!m_surface) return;
+
+    e->accept();
+    QPoint delta = e->angleDelta();
+
+    if(delta.y()) {
+        rd_surface_clear_selection(m_surface);
+
+        QScrollBar64* vbar = this->verticalScrollBar();
+        int const Y_DELTA_SIGN = delta.y() / qAbs(delta.y());
+
+        if(!rd_surface_scroll(m_surface, -Y_DELTA_SIGN * vbar->singleStep()))
+            return;
+
+        this->viewport()->update();
+        this->sync_scroll_position();
+    }
 }
 
 void SurfaceListing::keyPressEvent(QKeyEvent* e) {
     if(!utils::handle_key_press(this, e)) {
-        QScrollBar* vscroll = this->verticalScrollBar();
+        QScrollBar64* vscroll = this->verticalScrollBar();
         auto [row, col] = this->get_position();
 
         if(e->matches(QKeySequence::MoveToEndOfLine)) {
             rd_surface_set_pos(m_surface, row, this->visible_columns());
+        }
+        else if(e->matches(QKeySequence::MoveToNextPage)) {
+            if(!rd_surface_scroll(m_surface, this->visible_rows())) return;
+        }
+        else if(e->matches(QKeySequence::MoveToPreviousPage)) {
+            if(!rd_surface_scroll(m_surface, -this->visible_rows())) return;
         }
         else if(e->matches(QKeySequence::MoveToStartOfDocument)) {
             vscroll->setValue(0);
@@ -194,16 +276,16 @@ void SurfaceListing::keyPressEvent(QKeyEvent* e) {
             return;
         }
         else {
-            QAbstractScrollArea::keyPressEvent(e);
+            QScrollArea64::keyPressEvent(e);
             return;
         }
     }
 
-    this->viewport()->update();
+    this->invalidate();
 }
 
 void SurfaceListing::focusInEvent(QFocusEvent* e) {
-    QAbstractScrollArea::focusInEvent(e);
+    QScrollArea64::focusInEvent(e);
 
     if(m_surface) {
         rd_surface_set_cursor_visible(m_surface, true);
@@ -212,7 +294,7 @@ void SurfaceListing::focusInEvent(QFocusEvent* e) {
 }
 
 void SurfaceListing::focusOutEvent(QFocusEvent* e) {
-    QAbstractScrollArea::focusInEvent(e);
+    QScrollArea64::focusInEvent(e);
 
     if(m_surface) {
         rd_surface_set_cursor_visible(m_surface, false);
@@ -222,14 +304,9 @@ void SurfaceListing::focusOutEvent(QFocusEvent* e) {
 
 void SurfaceListing::paintEvent(QPaintEvent* e) {
     if(!m_surface) {
-        QAbstractScrollArea::paintEvent(e);
+        QScrollArea64::paintEvent(e);
         return;
     }
-
-    rd_surface_seek(m_surface,
-                    static_cast<usize>(this->verticalScrollBar()->value()));
-    rd_surface_render(m_surface, static_cast<usize>(this->visible_rows()));
-
     QPainter p{this->viewport()};
     surface_renderer::render(&p, m_surface, 0,
                              rd_surface_get_row_count(m_surface));
@@ -245,7 +322,7 @@ bool SurfaceListing::event(QEvent* event) {
         return true;
     }
 
-    return QAbstractScrollArea::event(event);
+    return QScrollArea64::event(event);
 }
 
 bool SurfaceListing::can_go_back() const {
@@ -295,10 +372,6 @@ QString SurfaceListing::get_selected_text() const {
     return QString::fromUtf8(rd_surface_get_selected_text(m_surface));
 }
 
-usize SurfaceListing::get_length() const {
-    return rd_surface_get_length(m_surface);
-}
-
 bool SurfaceListing::follow_under_cursor() {
     RDAddress address;
 
@@ -312,18 +385,36 @@ bool SurfaceListing::follow_under_cursor() {
 }
 
 void SurfaceListing::update_scrollbars() {
-    this->verticalScrollBar()->setRange(0,
-                                        static_cast<int>(this->get_length()));
+    RDAddressSpace addrspace = rd_get_address_space(m_context);
+    QScrollBar64* vbar = this->verticalScrollBar();
+
+    vbar->setRange(0, static_cast<quint64>(addrspace.size));
+    vbar->setPageStep(rd_surface_get_byte_span(m_surface));
+}
+
+void SurfaceListing::sync_scroll_position() {
+    RDAddressSpace space = rd_get_address_space(m_context);
+    RDAddress startaddr;
+
+    if(!rd_surface_get_first_address(m_surface, &startaddr))
+        startaddr = space.start;
+
+    QScrollBar64* vbar = this->verticalScrollBar();
+    QSignalBlocker blk(this->verticalScrollBar());
+    vbar->setValue(startaddr - space.start);
+    vbar->setPageStep(rd_surface_get_byte_span(m_surface));
+
+    m_last_vscroll = vbar->value();
 }
 
 void SurfaceListing::sync_location() {
-    usize currindex = rd_surface_get_row_start(m_surface);
-    auto oldvalue = static_cast<usize>(this->verticalScrollBar()->value());
-
-    if(oldvalue != currindex)
-        this->verticalScrollBar()->setValue(static_cast<int>(currindex));
-    else
-        this->viewport()->update();
+    // usize currindex = rd_surface_get_row_start(m_surface);
+    // auto oldvalue = static_cast<usize>(this->verticalScrollBar()->value());
+    //
+    // if(oldvalue != currindex)
+    //     this->verticalScrollBar()->setValue(static_cast<int>(currindex));
+    // else
+    //     this->viewport()->update();
 }
 
 void SurfaceListing::show_popup(const QPoint& pt) {

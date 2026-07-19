@@ -25,6 +25,7 @@ QString FlagsDelegate::comment(quint64 offset, quint8 b,
         {rd_flagsbuffer_has_code, "CODE"},
         {rd_flagsbuffer_has_data, "DATA"},
         {rd_flagsbuffer_has_func, "FUNC"},
+        {rd_flagsbuffer_has_type, "TYPE"},
         {rd_flagsbuffer_has_call, "CALL"},
         {rd_flagsbuffer_has_jump, "JUMP"},
         {rd_flagsbuffer_has_cond, "COND"},
@@ -65,6 +66,12 @@ bool FlagsDelegate::renderByte(quint64 offset, quint8 b, QHexCharFormat& outcf,
     else if(rd_flagsbuffer_has_func(m_flags, idx)) {
         outcf.foreground = theme_provider::color(RD_THEME_FUNCTION);
         QColor bg = theme_provider::color(RD_THEME_FUNCTION);
+        bg.setAlpha(40);
+        outcf.background = bg;
+    }
+    else if(rd_flagsbuffer_has_type(m_flags, idx)) {
+        outcf.foreground = theme_provider::color(RD_THEME_TYPE);
+        QColor bg = theme_provider::color(RD_THEME_TYPE);
         bg.setAlpha(40);
         outcf.background = bg;
     }

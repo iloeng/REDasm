@@ -7,10 +7,11 @@ namespace {
 QColor get_foreground_color(const RDSymbol& sym) {
     switch(sym.kind) {
         case RD_SYMBOL_SEGMENT: return theme_provider::color(RD_THEME_SEGMENT);
+
         case RD_SYMBOL_FUNCTION:
             return theme_provider::color(RD_THEME_FUNCTION);
+
         case RD_SYMBOL_TYPE: return theme_provider::color(RD_THEME_TYPE);
-        case RD_SYMBOL_STRING: return theme_provider::color(RD_THEME_STRING);
         default: break;
     }
 
@@ -114,9 +115,7 @@ QString SymbolsModel::get_symbol_kind(u32 t) const {
         case RD_SYMBOL_SEGMENT: return "SEGMENT";
         case RD_SYMBOL_FUNCTION: return "FUNCTION";
         case RD_SYMBOL_TYPE: return "TYPE";
-        case RD_SYMBOL_STRING: return "STRING";
-        case RD_SYMBOL_IMPORTED: return "IMPORTED";
-        case RD_SYMBOL_EXPORTED: return "EXPORTED";
+        case RD_SYMBOL_NAME: return "NAME";
         default: break;
     }
 

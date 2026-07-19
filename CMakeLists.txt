@@ -83,6 +83,8 @@ target_sources(${PROJECT_NAME}
         src/views/dashboard.cpp
         src/views/log.cpp
         src/views/welcome.cpp
+        src/widgets/scroll/qscrollarea64.cpp
+        src/widgets/scroll/qscrollbar64.cpp
         src/widgets/feedbackpushbutton.cpp
         src/widgets/feedbacktoolbutton.cpp
         src/main.cpp

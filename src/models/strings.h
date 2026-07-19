@@ -16,4 +16,9 @@ public:
     [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation,
                                       int role) const override;
     [[nodiscard]] int columnCount(const QModelIndex&) const override;
+
+protected:
+    [[nodiscard]] bool
+    filterAcceptsRow(int source_row,
+                     const QModelIndex& source_parent) const override;
 };

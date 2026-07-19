@@ -2,12 +2,12 @@
 
 #include "views/surface/isurface.h"
 #include "views/surface/popup.h"
-#include <QAbstractScrollArea>
+#include "widgets/scroll/qscrollarea64.h"
 #include <QMenu>
 #include <optional>
 #include <redasm/redasm.h>
 
-class SurfaceListing: public QAbstractScrollArea, public ISurface {
+class SurfaceListing: public QScrollArea64, public ISurface {
     Q_OBJECT
     Q_INTERFACES(ISurface)
 
@@ -40,13 +40,14 @@ public Q_SLOTS:
     void jump_to(RDAddress address) override;
     void jump_to_ep() override;
     void clear_history() override;
-    void invalidate() override;
+    bool invalidate() override;
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent* e) override;
     void mousePressEvent(QMouseEvent* e) override;
     void mouseMoveEvent(QMouseEvent* e) override;
     void resizeEvent(QResizeEvent* e) override;
+    void wheelEvent(QWheelEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
     void focusInEvent(QFocusEvent* e) override;
     void focusOutEvent(QFocusEvent* e) override;
@@ -55,9 +56,9 @@ protected:
 
 private:
     [[nodiscard]] RDSurfacePos get_surface_coords(QPoint pt) const;
-    [[nodiscard]] usize get_length() const;
     bool follow_under_cursor();
     void update_scrollbars();
+    void sync_scroll_position();
     void sync_location();
     void show_popup(const QPoint& pt);
 
@@ -71,4 +72,5 @@ private:
     RDContext* m_context{nullptr};
     RDSurface* m_surface{nullptr};
     QMenu* m_menu;
+    quint64 m_last_vscroll{0};
 };
