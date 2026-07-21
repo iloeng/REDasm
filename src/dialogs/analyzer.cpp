@@ -1,4 +1,5 @@
 #include "analyzer.h"
+#include "support/themeprovider.h"
 
 AnalyzerDialog::AnalyzerDialog(RDContext* ctx, QWidget* parent)
     : QDialog{parent}, m_ui{this}, m_context{ctx} {
@@ -52,6 +53,9 @@ void AnalyzerDialog::get_analyzers() {
 
         auto* nameitem = new QStandardItem(ap->name);
         auto* orderitem = new QStandardItem(QString::number(ap->order, 16));
+
+        if(ap->flags & RD_AF_EXPERIMENTAL)
+            nameitem->setForeground(theme_provider::color(RD_THEME_FAIL));
 
         nameitem->setCheckable(true);
         nameitem->setCheckState(ap->flags & RD_AF_SELECTED ? Qt::Checked
