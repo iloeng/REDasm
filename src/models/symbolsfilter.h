@@ -4,8 +4,6 @@
 #include <QSortFilterProxyModel>
 #include <redasm/redasm.h>
 
-class SymbolsModel;
-
 class SymbolsFilterModel: public QSortFilterProxyModel {
     Q_OBJECT
 

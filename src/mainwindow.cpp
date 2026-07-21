@@ -6,6 +6,7 @@
 #include "dialogs/loader.h"
 #include "dialogs/memorymap.h"
 #include "dialogs/table.h"
+#include "dialogs/typedefs.h"
 #include "models/externals.h"
 #include "models/mappings.h"
 #include "models/problems.h"
@@ -77,6 +78,8 @@ MainWindow::MainWindow(const RDInitParams& params, QWidget* parent)
             &MainWindow::show_segment_regs);
     connect(m_ui.actviewstrings, &QAction::triggered, this,
             &MainWindow::show_strings);
+    connect(m_ui.actviewtypedefs, &QAction::triggered, this,
+            &MainWindow::show_typedefs);
     connect(m_ui.actviewexported, &QAction::triggered, this,
             &MainWindow::show_exported);
     connect(m_ui.actviewimported, &QAction::triggered, this,
@@ -308,12 +311,13 @@ void MainWindow::enable_context_actions(bool e) { // NOLINT
     m_ui.acttoolsflc->setVisible(e);
     m_ui.acttoolsproblems->setVisible(e);
     m_ui.actdevgraphs->setVisible(e);
-    m_ui.actviewexported->setVisible(e);
     m_ui.actviewsegmentregs->setVisible(e);
     m_ui.actviewsegments->setVisible(e);
     m_ui.actviewmappings->setVisible(e);
-    m_ui.actviewimported->setVisible(e);
     m_ui.actviewstrings->setVisible(e);
+    m_ui.actviewtypedefs->setVisible(e);
+    m_ui.actviewimported->setVisible(e);
+    m_ui.actviewexported->setVisible(e);
 
     actions::get(actions::GOTO)->setVisible(e);
 
@@ -534,6 +538,14 @@ void MainWindow::show_strings() {
     dlg->set_model(stringsmodel);
     dlg->set_stretch_last_column(false);
     dlg->resize_column(3, QHeaderView::Stretch);
+    dlg->show();
+}
+
+void MainWindow::show_typedefs() {
+    ContextView* ctxview = this->context_view();
+    if(!ctxview) return;
+
+    auto* dlg = new TypedefsDialog(ctxview->context(), this);
     dlg->show();
 }
 

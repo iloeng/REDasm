@@ -49,6 +49,7 @@ target_sources(${PROJECT_NAME}
         src/dialogs/segmentregs.cpp
         src/dialogs/settings.cpp
         src/dialogs/table.cpp
+        src/dialogs/typedefs.cpp
         src/hexview/flagsbuffer.cpp
         src/hexview/flagsdelegate.cpp
         src/models/externals.cpp
@@ -62,6 +63,8 @@ target_sources(${PROJECT_NAME}
         src/models/strings.cpp
         src/models/symbols.cpp
         src/models/symbolsfilter.cpp
+        src/models/typedefs.cpp
+        src/models/typedefsfilter.cpp
         src/support/actions.cpp
         src/support/fontawesome.cpp
         src/support/settings.cpp

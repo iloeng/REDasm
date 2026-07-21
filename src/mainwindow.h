@@ -28,6 +28,7 @@ private Q_SLOTS:
     void show_mappings();
     void show_segment_regs();
     void show_strings();
+    void show_typedefs();
     void show_exported();
     void show_imported();
     void show_welcome_view();

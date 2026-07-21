@@ -25,8 +25,8 @@ struct MainWindow {
     QAction *acttoolsflc, *acttoolsproblems;
     QAction *actdevdecoder, *actdevgraphs;
     QAction *actviewmemorymap, *actviewsegments, *actviewmappings,
-        *actviewsegmentregs, *actviewstrings, *actviewimported,
-        *actviewexported;
+        *actviewsegmentregs, *actviewstrings, *actviewtypedefs,
+        *actviewimported, *actviewexported;
     QAction *acttbseparator1, *acttbseparator2, *acttbseparator3,
         *acttbseparator4;
     ::LogView* logview;
@@ -117,13 +117,17 @@ struct MainWindow {
         this->actviewstrings = this->mnuview->addAction(
             FA_ICON(0xf031), "&Strings", QKeySequence{Qt::SHIFT | Qt::Key_F5});
 
+        this->actviewtypedefs =
+            this->mnuview->addAction(FA_ICON(0xf1b3), "&Type Definitions",
+                                     QKeySequence{Qt::SHIFT | Qt::Key_F6});
+
         this->mnuview->addSeparator();
 
         this->actviewexported = this->mnuview->addAction(
-            FA_ICON(0xf56e), "&Exported", QKeySequence{Qt::SHIFT | Qt::Key_F6});
+            FA_ICON(0xf56e), "&Exported", QKeySequence{Qt::SHIFT | Qt::Key_F7});
 
         this->actviewimported = this->mnuview->addAction(
-            FA_ICON(0xf56f), "&Imported", QKeySequence{Qt::SHIFT | Qt::Key_F7});
+            FA_ICON(0xf56f), "&Imported", QKeySequence{Qt::SHIFT | Qt::Key_F8});
 
         auto* toolbar = new QToolBar(self);
         toolbar->setObjectName("MainToolBar");
