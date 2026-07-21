@@ -103,5 +103,5 @@ void SurfacePopup::paintEvent(QPaintEvent* e) {
     }
 
     QPainter painter{this};
-    surface_renderer::render(&painter, m_surface, 0, m_nrows);
+    surface_renderer::render(&painter, m_surface, m_nrows);
 }

@@ -25,7 +25,6 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
     this->verticalScrollBar()->setPageStep(1);
     this->horizontalScrollBar()->setSingleStep(1);
     this->horizontalScrollBar()->setMinimum(0);
-    // this->horizontalScrollBar()->setMaximum(2000);
     this->horizontalScrollBar()->setValue(0);
 
     m_menu = utils::create_surface_menu(this);
@@ -77,11 +76,11 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
                 }
 
                 this->viewport()->update();
-                this->sync_scroll_position();
+                this->sync_scrollbars();
             });
 
     connect(this->verticalScrollBar(), &QScrollBar64::sliderReleased, this,
-            [&]() { this->sync_scroll_position(); });
+            [&]() { this->sync_scrollbars(); });
 
     connect(this->verticalScrollBar(), &QScrollBar64::actionTriggered, this,
             [&](int) { rd_surface_clear_selection(m_surface); });
@@ -119,7 +118,7 @@ void SurfaceListing::select(int row, int col) {
 bool SurfaceListing::go_back() {
     if(rd_surface_go_back(m_surface)) {
         this->viewport()->update();
-        this->sync_scroll_position();
+        this->sync_scrollbars();
         Q_EMIT history_updated();
         return true;
     }
@@ -129,7 +128,7 @@ bool SurfaceListing::go_back() {
 bool SurfaceListing::go_forward() {
     if(rd_surface_go_forward(m_surface)) {
         this->viewport()->update();
-        this->sync_scroll_position();
+        this->sync_scrollbars();
         Q_EMIT history_updated();
         return true;
     }
@@ -146,7 +145,7 @@ void SurfaceListing::jump_to(RDAddress address) {
     if(!rd_surface_jump_to(m_surface, address)) return;
 
     this->viewport()->update();
-    this->sync_scroll_position();
+    this->sync_scrollbars();
     Q_EMIT history_updated();
 }
 
@@ -161,7 +160,7 @@ bool SurfaceListing::invalidate() {
     if(!rd_surface_repaint(m_surface)) return false;
 
     this->viewport()->update();
-    this->sync_scroll_position();
+    this->sync_scrollbars();
     return true;
 }
 
@@ -209,12 +208,13 @@ void SurfaceListing::mouseMoveEvent(QMouseEvent* e) {
 void SurfaceListing::resizeEvent(QResizeEvent* e) {
     e->accept();
 
+    rd_surface_set_min_columns(m_surface, this->visible_columns());
+
     rd_surface_set_max_rows(m_surface,
                             static_cast<usize>(this->visible_rows()));
-    rd_surface_set_columns(m_surface, this->visible_columns());
 
-    this->update_scrollbars();
     this->invalidate();
+    this->update_scrollbars();
 }
 
 void SurfaceListing::wheelEvent(QWheelEvent* e) {
@@ -233,7 +233,7 @@ void SurfaceListing::wheelEvent(QWheelEvent* e) {
             return;
 
         this->viewport()->update();
-        this->sync_scroll_position();
+        this->sync_scrollbars();
     }
 }
 
@@ -307,9 +307,11 @@ void SurfaceListing::paintEvent(QPaintEvent* e) {
         QScrollArea64::paintEvent(e);
         return;
     }
+
+    quint64 start_x = this->horizontalScrollBar()->value();
     QPainter p{this->viewport()};
-    surface_renderer::render(&p, m_surface, 0,
-                             rd_surface_get_row_count(m_surface));
+    surface_renderer::render(&p, m_surface, rd_surface_get_row_count(m_surface),
+                             static_cast<usize>(start_x));
 
     Q_EMIT render_completed();
     statusbar::set_address(this);
@@ -342,8 +344,7 @@ int SurfaceListing::visible_rows() const {
 }
 
 RDSurfacePos SurfaceListing::get_surface_coords(QPoint pt) const {
-    pt.ry() += this->horizontalScrollBar()->value();
-    return surface_renderer::hit_test(pt);
+    return surface_renderer::hit_test(pt, this->horizontalScrollBar()->value());
 }
 
 RDSurfacePos SurfaceListing::get_position() const {
@@ -387,12 +388,17 @@ bool SurfaceListing::follow_under_cursor() {
 void SurfaceListing::update_scrollbars() {
     RDAddressSpace addrspace = rd_get_address_space(m_context);
     QScrollBar64* vbar = this->verticalScrollBar();
+    QScrollBar64* hbar = this->horizontalScrollBar();
 
     vbar->setRange(0, static_cast<quint64>(addrspace.size));
     vbar->setPageStep(rd_surface_get_byte_span(m_surface));
+
+    bool needs_hscroll =
+        rd_surface_get_max_column(m_surface) > this->visible_columns();
+    hbar->setMaximum(needs_hscroll ? rd_surface_get_max_column(m_surface) : 0);
 }
 
-void SurfaceListing::sync_scroll_position() {
+void SurfaceListing::sync_scrollbars() {
     RDAddressSpace space = rd_get_address_space(m_context);
     RDAddress startaddr;
 
@@ -400,21 +406,20 @@ void SurfaceListing::sync_scroll_position() {
         startaddr = space.start;
 
     QScrollBar64* vbar = this->verticalScrollBar();
-    QSignalBlocker blk(this->verticalScrollBar());
+    QScrollBar64* hbar = this->horizontalScrollBar();
+
+    QSignalBlocker blk1{this->verticalScrollBar()};
+    QSignalBlocker blk2{this->horizontalScrollBar()};
+
     vbar->setValue(startaddr - space.start);
     vbar->setPageStep(rd_surface_get_byte_span(m_surface));
-
     m_last_vscroll = vbar->value();
-}
 
-void SurfaceListing::sync_location() {
-    // usize currindex = rd_surface_get_row_start(m_surface);
-    // auto oldvalue = static_cast<usize>(this->verticalScrollBar()->value());
-    //
-    // if(oldvalue != currindex)
-    //     this->verticalScrollBar()->setValue(static_cast<int>(currindex));
-    // else
-    //     this->viewport()->update();
+    bool needs_hscroll =
+        hbar->value() > 0 ||
+        (rd_surface_get_max_column(m_surface) > this->visible_columns());
+    hbar->setMaximum(rd_surface_get_max_column(m_surface));
+    this->setHorizontalScrollBarVisible(needs_hscroll);
 }
 
 void SurfaceListing::show_popup(const QPoint& pt) {

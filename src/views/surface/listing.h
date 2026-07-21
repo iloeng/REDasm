@@ -58,8 +58,7 @@ private:
     [[nodiscard]] RDSurfacePos get_surface_coords(QPoint pt) const;
     bool follow_under_cursor();
     void update_scrollbars();
-    void sync_scroll_position();
-    void sync_location();
+    void sync_scrollbars();
     void show_popup(const QPoint& pt);
 
 Q_SIGNALS:

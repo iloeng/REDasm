@@ -38,7 +38,9 @@ void init() {
     g_cell_h = fm.height();
 }
 
-RDSurfacePos hit_test(QPoint pt) {
+RDSurfacePos hit_test(QPoint pt, quint64 start_x) {
+    pt.rx() += surface_renderer::cell_width() * start_x;
+
     return {
         qFloor(pt.y() / g_cell_h),
         qFloor(pt.x() / g_cell_w),
@@ -49,15 +51,17 @@ qreal cell_width() { return surface_renderer::g_cell_w; }
 qreal cell_height() { return surface_renderer::g_cell_h; }
 QFont get_font() { return surface_renderer::g_font; }
 
-void render(QPainter* p, RDSurface* surface, usize start, usize n) {
+void render(QPainter* p, RDSurface* surface, usize n, usize start_x) {
     p->setFont(surface_renderer::g_font);
 
     for(usize i = 0; i < n; i++) {
-        RDRowSlice row = rd_surface_get_row(surface, start + i);
+        RDRowSlice row = rd_surface_get_row(surface, i);
         qreal y = static_cast<qreal>(i) * surface_renderer::g_cell_h;
 
-        for(usize j = 0; j < rd_slice_length(row); j++) {
-            RDCell c = rd_slice_at(row, j);
+        usize char_idx = start_x;
+
+        for(usize j = 0; char_idx < rd_slice_length(row); j++, char_idx++) {
+            RDCell c = rd_slice_at(row, char_idx);
             QColor fg = theme_provider::color(c.fg);
             QColor bg = theme_provider::color(c.bg);
 
