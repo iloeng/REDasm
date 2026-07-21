@@ -20,6 +20,9 @@ public Q_SLOTS:
     void log(RDLogLevel level, const QString& tag, const QString& msg);
 
 private:
+    void add_log_level(const QString& text, int ll);
+    void update_log_levels();
+    void update_log();
     [[nodiscard]] bool accept_log(const LogEntry& e) const;
     void append_log(const LogEntry& e, bool update);
     const LogEntry& collect_log(RDLogLevel level, const QString& tag,
@@ -28,4 +31,5 @@ private:
 private:
     ui::LogView m_ui;
     QList<LogEntry> m_entries;
+    QHash<int, bool> m_levels;
 };

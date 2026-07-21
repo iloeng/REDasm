@@ -12,19 +12,24 @@ namespace ui {
 
 struct LogView {
     QTextEdit* telogs;
+    QToolButton* tblevels;
     QLineEdit* lefilter;
     QToolButton* tbclear;
 
     explicit LogView(QWidget* self) {
-        this->tbclear = new QToolButton(self);
+        this->tblevels = new QToolButton();
+        this->tblevels->setPopupMode(QToolButton::InstantPopup);
+
+        this->tbclear = new QToolButton();
         this->tbclear->setIcon(FA_ICON(0xf51a));
         this->tbclear->setAutoRaise(true);
         this->tbclear->setToolTip("Clear");
 
         auto* hbox = new QHBoxLayout();
-        hbox->setContentsMargins(4, 0, 4, 0);
+        hbox->setContentsMargins(4, 1, 4, 1);
         hbox->setSpacing(2);
         hbox->addStretch();
+        hbox->addWidget(this->tblevels);
         hbox->addWidget(this->tbclear);
 
         this->lefilter = new QLineEdit(self);
