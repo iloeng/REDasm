@@ -19,6 +19,8 @@ public:
     QAction* add_button(QAction* action);
     QWidget* add_widget(QWidget* w);
     void add_spacer();
+    void create_default_buttons();
+    void create_title();
 
 public Q_SLOTS:
     void split_horizontally();
@@ -35,12 +37,11 @@ private Q_SLOTS:
 private:
     [[nodiscard]] QToolBar* create_toolbar();
     void split(Qt::Orientation orientation);
-    void create_default_buttons();
 
 private:
     SplitView* m_view;
     QWidget* m_widget{nullptr};
-    QAction *m_actfirstdefault{nullptr}, *m_actclose{nullptr};
+    QAction* m_actclose{nullptr};
     QToolBar* m_tbactions;
 
     friend class SplitView;

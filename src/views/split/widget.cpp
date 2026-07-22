@@ -14,7 +14,6 @@ SplitWidget::SplitWidget(SplitView* view): m_view{view} {
 
     m_widget =
         view->split_delegate()->create_widget(this, view->current_split());
-    this->create_default_buttons();
 
     auto* vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -47,42 +46,23 @@ QAction* SplitWidget::add_button(const QIcon& icon) {
 }
 
 QAction* SplitWidget::add_button(QAction* action) {
-    if(m_actfirstdefault)
-        m_tbactions->insertAction(m_actfirstdefault, action);
-    else
-        m_tbactions->addAction(action);
-
+    m_tbactions->addAction(action);
     return action;
 }
 
 QWidget* SplitWidget::add_widget(QWidget* w) {
     w->setParent(m_tbactions);
-
-    if(m_actfirstdefault)
-        m_tbactions->insertWidget(m_actfirstdefault, w);
-    else
-        m_tbactions->addWidget(w);
-
+    m_tbactions->addWidget(w);
     return w;
 }
 
 void SplitWidget::add_spacer() {
     auto* spacer = new QWidget(m_tbactions);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    if(m_actfirstdefault)
-        m_tbactions->insertWidget(m_actfirstdefault, spacer);
-    else
-        m_tbactions->addWidget(spacer);
+    m_tbactions->addWidget(spacer);
 }
 
 void SplitWidget::create_default_buttons() {
-    auto* title = new QLabel();
-    title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    if(m_widget) title->setText(m_widget->windowTitle());
-
-    m_actfirstdefault = m_tbactions->addWidget(title);
-
     QAction* acthsplit = m_tbactions->addAction(FA_ICON(0xf105), {});
     QAction* actvsplit = m_tbactions->addAction(FA_ICON(0xf107), {});
     QAction* actdlgopen = m_tbactions->addAction(FA_ICON(0xf2d2), {});
@@ -94,6 +74,13 @@ void SplitWidget::create_default_buttons() {
     connect(actdlgopen, &QAction::triggered, this, &SplitWidget::open_in_dialog);
     connect(m_actclose, &QAction::triggered, this, &SplitWidget::close_widget);
     // clang-format on
+}
+
+void SplitWidget::create_title() {
+    auto* title = new QLabel();
+    title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    if(m_widget) title->setText(m_widget->windowTitle());
+    m_tbactions->addWidget(title);
 }
 
 void SplitWidget::split_horizontally() { this->split(Qt::Horizontal); }

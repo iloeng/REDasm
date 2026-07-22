@@ -1,5 +1,4 @@
 #include "split.h"
-#include "support/actions.h"
 #include "support/fontawesome.h"
 #include "support/themeprovider.h"
 #include "support/utils.h"
@@ -74,7 +73,6 @@ QWidget* SurfaceSplitDelegate::create_widget(SplitWidget* current,
         FA_ICON_COLOR(0xf053, theme_provider::color(RD_THEME_SUCCESS)));
     QAction* actforward = current->add_button(
         FA_ICON_COLOR(0xf054, theme_provider::color(RD_THEME_SUCCESS)));
-    current->add_button(actions::get(actions::GOTO));
 
     auto* stack = new QStackedWidget();
     auto* surfaceview = new SurfaceView(m_context);
@@ -84,6 +82,8 @@ QWidget* SurfaceSplitDelegate::create_widget(SplitWidget* current,
 
     FeedbackToolButton* tbscreenshot = utils::create_screenshot_button(stack);
     current->add_widget(tbscreenshot);
+
+    current->add_spacer();
 
     auto* cbrendermode =
         static_cast<QComboBox*>(current->add_widget(new QComboBox()));
@@ -168,6 +168,7 @@ QWidget* SurfaceSplitDelegate::create_widget(SplitWidget* current,
             s->go_forward();
     });
 
+    current->create_default_buttons();
     return stack;
 }
 

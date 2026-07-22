@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QSplitter>
+#include <QToolBar>
 
 class SplitWidget;
 
