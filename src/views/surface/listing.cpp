@@ -86,7 +86,7 @@ SurfaceListing::SurfaceListing(RDContext* ctx, QWidget* parent)
             [&](int) { rd_surface_clear_selection(m_surface); });
 
     this->update_scrollbars();
-    this->invalidate();
+    this->jump_to_ep();
 }
 
 SurfaceListing::~SurfaceListing() {
