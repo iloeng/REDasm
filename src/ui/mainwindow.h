@@ -17,9 +17,9 @@ struct MainWindow {
     QStatusBar* statusbar;
     QStackedWidget* stackwidget;
     QMenu *mnufile, *mnuedit, *mnuview, *mnutools, *mnuwindow, *mnuhelp;
-    QMenu *mnurecents, *mnudev;
+    QMenu *mnurecents, *mnuexport, *mnudev;
     QAction *actfileopen, *actfilesave, *actfilesaveas, *actfileexportdb,
-        *actfileclose, *actfileexit;
+        *actfileexportinput, *actfileexportpatch, *actfileclose, *actfileexit;
     QAction* actwinrestoredefault;
     QAction *actedit, *actview, *acttools;
     QAction *acttoolsflc, *acttoolsproblems;
@@ -68,16 +68,19 @@ struct MainWindow {
             "Save as…", QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_S});
         this->actfilesaveas->setVisible(false);
 
-        this->actfileexportdb =
-            this->mnufile->addAction(FA_ICON(0xf1c0), "Export DB");
-        this->actfileexportdb->setVisible(false);
+        this->mnuexport = this->mnufile->addMenu(FA_ICON(0xf30b), "Export…");
+        this->mnuexport->setVisible(false);
+
+        this->actfileexportdb = this->mnuexport->addAction("Database");
+        this->actfileexportinput = this->mnuexport->addAction("Input");
+        this->actfileexportpatch = this->mnuexport->addAction("Patched Input");
 
         this->actfileclose = this->mnufile->addAction("Close");
         this->actfileclose->setVisible(false);
 
+        this->mnufile->addSeparator();
         this->mnurecents = new QMenu("&Recent Files", menubar);
         this->mnufile->addMenu(this->mnurecents);
-        this->mnufile->addSeparator();
         this->mnufile->addAction(actions::get(actions::OPEN_SETTINGS));
         this->actfileexit = this->mnufile->addAction("&Exit");
 

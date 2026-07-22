@@ -24,6 +24,8 @@ private Q_SLOTS:
     void save_project();
     void save_project_as();
     void export_db();
+    void export_input();
+    void export_input_patch();
     void show_segments();
     void show_mappings();
     void show_segment_regs();

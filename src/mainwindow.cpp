@@ -70,6 +70,10 @@ MainWindow::MainWindow(const RDInitParams& params, QWidget* parent)
             &MainWindow::show_welcome_view);
     connect(m_ui.actfileexportdb, &QAction::triggered, this,
             &MainWindow::export_db);
+    connect(m_ui.actfileexportinput, &QAction::triggered, this,
+            &MainWindow::export_input);
+    connect(m_ui.actfileexportpatch, &QAction::triggered, this,
+            &MainWindow::export_input_patch);
     connect(m_ui.actviewsegments, &QAction::triggered, this,
             &MainWindow::show_segments);
     connect(m_ui.actviewmappings, &QAction::triggered, this,
@@ -296,9 +300,10 @@ bool MainWindow::can_close() const {
 }
 
 void MainWindow::enable_context_actions(bool e) { // NOLINT
+    m_ui.mnuexport->menuAction()->setVisible(e);
+
     m_ui.actfilesave->setVisible(e);
     m_ui.actfilesaveas->setVisible(e);
-    m_ui.actfileexportdb->setVisible(e);
     m_ui.actfileclose->setVisible(e);
     m_ui.actedit->setVisible(e);
     m_ui.actview->setVisible(e);
@@ -455,8 +460,36 @@ void MainWindow::export_db() {
     if(rd_export(cv->context(), qUtf8Printable(s), RD_EXPORT_DB)) return;
 
     QMessageBox::warning(
-        this, "DB Export",
+        this, "DB export",
         QString{"Database export to '%1' failed\nSee log for details."}.arg(s));
+}
+
+void MainWindow::export_input() {
+    QString s = QFileDialog::getSaveFileName(this, "Export input…", {},
+                                             "Any File (*.*)");
+    if(s.isEmpty()) return;
+
+    ContextView* cv = this->context_view();
+    if(rd_export(cv->context(), qUtf8Printable(s), RD_EXPORT_INPUT)) return;
+
+    QMessageBox::warning(
+        this, "Input export",
+        QString{"Input export to '%1' failed\nSee log for details."}.arg(s));
+}
+
+void MainWindow::export_input_patch() {
+    QString s = QFileDialog::getSaveFileName(this, "Export patched input…", {},
+                                             "Any File (*.*)");
+    if(s.isEmpty()) return;
+
+    ContextView* cv = this->context_view();
+    if(rd_export(cv->context(), qUtf8Printable(s), RD_EXPORT_INPUT_PATCH))
+        return;
+
+    QMessageBox::warning(
+        this, "Patched input export",
+        QString{"Patched input export to '%1' failed\nSee log for details."}
+            .arg(s));
 }
 
 void MainWindow::log(RDLogLevel level, const QString& tag, // NOLINT
