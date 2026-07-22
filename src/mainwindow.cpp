@@ -545,7 +545,7 @@ void MainWindow::show_typedefs() {
     ContextView* ctxview = this->context_view();
     if(!ctxview) return;
 
-    auto* dlg = new TypedefsDialog(ctxview->context(), this);
+    auto* dlg = new TypeDefsDialog(ctxview->context(), this);
     dlg->show();
 }
 

@@ -92,7 +92,7 @@ void _generate_function_tdef_code(QTextEdit* te, const RDTypeDef* tdef,
 
 } // namespace
 
-TypedefSyntaxHighlighter::TypedefSyntaxHighlighter(QTextDocument* doc)
+TypeDefSyntaxHighlighter::TypeDefSyntaxHighlighter(QTextDocument* doc)
     : SyntaxHighlighter{doc} {
     m_typefmt.setForeground(theme_provider::color(RD_THEME_TYPE));
 
@@ -107,15 +107,15 @@ TypedefSyntaxHighlighter::TypedefSyntaxHighlighter(QTextDocument* doc)
     this->add_type("void");
 }
 
-void TypedefSyntaxHighlighter::add_type(const QString& type) {
+void TypeDefSyntaxHighlighter::add_type(const QString& type) {
     this->add_word_rule({type}, m_typefmt);
 }
 
-TypedefsDialog::TypedefsDialog(RDContext* ctx, QWidget* parent)
+TypeDefsDialog::TypeDefsDialog(RDContext* ctx, QWidget* parent)
     : QDialog{parent}, m_ui{this}, m_context{ctx} {
     m_typedefsmodel = new TypedefsFilterModel(ctx, this);
 
-    auto* hl = new TypedefSyntaxHighlighter(m_ui.tecode->document());
+    auto* hl = new TypeDefSyntaxHighlighter(m_ui.tecode->document());
     RDTypeDefSlice tdefs = rd_get_all_type_defs(ctx);
 
     const RDTypeDef** tdef;
@@ -129,10 +129,10 @@ TypedefsDialog::TypedefsDialog(RDContext* ctx, QWidget* parent)
     hdrview->setSectionResizeMode(0, QHeaderView::Stretch);
 
     connect(m_ui.tvtypedefs, &QTreeView::clicked, this,
-            &TypedefsDialog::generate_code);
+            &TypeDefsDialog::generate_code);
 }
 
-void TypedefsDialog::generate_code(const QModelIndex& index) {
+void TypeDefsDialog::generate_code(const QModelIndex& index) {
     const RDTypeDef* tdef = m_typedefsmodel->type_def(index);
 
     m_ui.tecode->clear();

@@ -5,22 +5,22 @@
 #include "ui/typedefsdialog.h"
 #include <redasm/redasm.h>
 
-class TypedefSyntaxHighlighter: SyntaxHighlighter {
+class TypeDefSyntaxHighlighter: SyntaxHighlighter {
     Q_OBJECT
 
 public:
-    explicit TypedefSyntaxHighlighter(QTextDocument* doc);
+    explicit TypeDefSyntaxHighlighter(QTextDocument* doc);
     void add_type(const QString& type);
 
 private:
     QTextCharFormat m_typefmt;
 };
 
-class TypedefsDialog: public QDialog {
+class TypeDefsDialog: public QDialog {
     Q_OBJECT
 
 public:
-    explicit TypedefsDialog(RDContext* ctx, QWidget* parent = nullptr);
+    explicit TypeDefsDialog(RDContext* ctx, QWidget* parent = nullptr);
     void generate_code(const QModelIndex& index);
 
 private:
