@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.20)
 
 project(redasm-gui)
 
@@ -69,6 +69,7 @@ target_sources(${PROJECT_NAME}
         src/support/fontawesome.cpp
         src/support/settings.cpp
         src/support/surfacerenderer.cpp
+        src/support/syntaxhighlighter.cpp
         src/support/themeprovider.cpp
         src/support/utils.cpp
         src/views/graph/node.cpp
