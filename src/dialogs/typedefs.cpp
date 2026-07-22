@@ -1,4 +1,5 @@
 #include "typedefs.h"
+#include "support/themeprovider.h"
 #include <QFontDatabase>
 #include <QTextCursor>
 #include <algorithm>
@@ -24,7 +25,9 @@ void _generate_compound_tdef_code(QTextEdit* te, const RDTypeDef* tdef,
     QTextDocument* doc = te->document();
     QTextCursor cur(doc);
 
-    if(rd_typedef_kind(tdef) == RD_TKIND_UNION) {
+    bool is_union = rd_typedef_kind(tdef) == RD_TKIND_UNION;
+
+    if(is_union) {
         cur.insertText(QString{"union %1 {\n"}.arg(
             QString::fromUtf8(rd_typedef_name(tdef))));
     }
@@ -34,7 +37,7 @@ void _generate_compound_tdef_code(QTextEdit* te, const RDTypeDef* tdef,
     }
 
     RDParamSlice members = rd_typedef_get_members(tdef);
-    int max_w = _get_member_max_width(members, ctx);
+    int max_w = is_union ? 0 : _get_member_max_width(members, ctx);
 
     const RDParam* m;
     rd_slice_each(m, members) {
@@ -43,10 +46,14 @@ void _generate_compound_tdef_code(QTextEdit* te, const RDTypeDef* tdef,
         QString offset_str = QString::number(m->field_offset);
 
         QString code_part = QString{"   %1 %2;"}.arg(type_str).arg(name_str);
-        int padding = max_w - code_part.length();
 
-        cur.insertText(code_part + QString(padding, ' ') +
-                       QString("    // +%1\n").arg(offset_str));
+        if(!is_union) {
+            int padding = max_w - code_part.length();
+            cur.insertText(code_part + QString{padding, ' '} +
+                           QString{"    // +%1"}.arg(offset_str));
+        }
+
+        cur.insertText("\n");
     }
 
     cur.insertText("}");
@@ -85,9 +92,34 @@ void _generate_function_tdef_code(QTextEdit* te, const RDTypeDef* tdef,
 
 } // namespace
 
+TypedefSyntaxHighlighter::TypedefSyntaxHighlighter(QTextDocument* doc)
+    : SyntaxHighlighter{doc} {
+    m_typefmt.setForeground(theme_provider::color(RD_THEME_TYPE));
+
+    this->set_number_fg(theme_provider::color(RD_THEME_NUMBER));
+    this->set_line_comment_fg("//", theme_provider::color(RD_THEME_COMMENT));
+
+    this->add_word_fg({"enum", "union", "struct"},
+                      theme_provider::color(RD_THEME_CALL));
+
+    this->add_word_fg({"noreturn"}, theme_provider::color(RD_THEME_CALL));
+
+    this->add_type("void");
+}
+
+void TypedefSyntaxHighlighter::add_type(const QString& type) {
+    this->add_word_rule({type}, m_typefmt);
+}
+
 TypedefsDialog::TypedefsDialog(RDContext* ctx, QWidget* parent)
     : QDialog{parent}, m_ui{this}, m_context{ctx} {
     m_typedefsmodel = new TypedefsFilterModel(ctx, this);
+
+    auto* hl = new TypedefSyntaxHighlighter(m_ui.tecode->document());
+    RDTypeDefSlice tdefs = rd_get_all_type_defs(ctx);
+
+    const RDTypeDef** tdef;
+    rd_slice_each(tdef, tdefs) { hl->add_type(rd_typedef_name(*tdef)); }
 
     QFont f = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     m_ui.tecode->setFont(f);
