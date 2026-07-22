@@ -90,6 +90,7 @@ void SplitWidget::open_in_dialog() {
     auto* dlg = new QDialog(m_view);
     dlg->setWindowFlag(Qt::Tool);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->resize(1000, 600);
 
     auto* vbox = new QVBoxLayout(dlg);
     vbox->setContentsMargins(0, 0, 0, 0);
