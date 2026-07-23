@@ -11,6 +11,12 @@
 #include <QToolBar>
 #include <QToolButton>
 
+#if !defined(NDEBUG) && defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#include <QProcessEnvironment>
+#include <QString>
+#include <QStringList>
+#endif
+
 namespace ui {
 
 struct MainWindow {
@@ -35,8 +41,8 @@ struct MainWindow {
         self->setAcceptDrops(true);
         self->resize(1500, 850);
 
-#if !defined(NDEBUG)
-        self->setFixedSize(1500, 850);
+#if !defined(NDEBUG) && defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+        if(this->is_tiling_wm()) self->setFixedSize(1500, 850);
 #endif
 
         actions::init(self);
@@ -166,6 +172,44 @@ struct MainWindow {
 
         self->setCentralWidget(vsplit);
     }
+
+#if !defined(NDEBUG) && defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+private:
+    bool is_tiling_wm() {
+        const QProcessEnvironment ENV =
+            QProcessEnvironment::systemEnvironment();
+
+        // Most tiling WMs set their own IPC socket env var
+        // the most reliable signal
+        static const QStringList TILING_ENV_HINTS = {
+            "I3SOCK",                      // i3
+            "SWAYSOCK",                    // sway
+            "HYPRLAND_INSTANCE_SIGNATURE", // Hyprland
+            "BSPWM_SOCKET",                // bspwm
+            "QTILE_XEPHYR",                // qtile (partial)
+        };
+
+        for(const auto& var : TILING_ENV_HINTS) {
+            if(ENV.contains(var)) return true;
+        }
+
+        // Fallback: match XDG_CURRENT_DESKTOP / DESKTOP_SESSION against known
+        // tiling WM names (covers ones without a dedicated socket env var)
+        static const QStringList TILING_WM_NAMES = {
+            "i3",           "sway",  "bspwm",    "awesome", "dwm",  "xmonad",
+            "herbstluftwm", "qtile", "spectrwm", "leftwm",  "river"};
+
+        QString desktop = ENV.value("XDG_CURRENT_DESKTOP").toLower();
+        QString session = ENV.value("DESKTOP_SESSION").toLower();
+
+        for(const auto& name : TILING_WM_NAMES) { // NOLINT
+            if(desktop.contains(name) || session.contains(name)) return true;
+        }
+
+        return false;
+    }
+
+#endif
 };
 
 } // namespace ui
