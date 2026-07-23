@@ -129,7 +129,16 @@ void SplitWidget::close_widget() {
     QList<int> sizes = psplitter->sizes();
     sizes.removeAt(psplitter->indexOf(this));
 
-    if(m_view->current_split() == this) m_view->set_selected_widget(nullptr);
+    if(m_view->current_split() == this) {
+        if(auto* sibling = this->find_sibling_to_focus()) {
+            if(sibling->m_widget)
+                sibling->m_widget->setFocus();
+            else
+                m_view->set_selected_widget(sibling);
+        }
+        else
+            m_view->set_selected_widget(nullptr);
+    }
 
     connect(this, &QObject::destroyed, psplitter, [psplitter]() {
         _splitwidget_collapse_empty_splitters(psplitter);
@@ -141,6 +150,24 @@ void SplitWidget::close_widget() {
 
 void SplitWidget::update_close_button() {
     if(m_actclose) m_actclose->setVisible(m_view->count() > 1);
+}
+
+SplitWidget* SplitWidget::find_sibling_to_focus() const {
+    if(auto* psplitter = qobject_cast<QSplitter*>(this->parentWidget())) {
+        for(int i = 0; i < psplitter->count(); i++) {
+            QWidget* w = psplitter->widget(i);
+            if(w == this) continue;
+            if(auto* sw = qobject_cast<SplitWidget*>(w)) return sw;
+            if(auto* sw = w->findChild<SplitWidget*>()) return sw;
+        }
+    }
+
+    // fallback: any other split still alive in the view
+    for(auto* sw : m_view->findChildren<SplitWidget*>()) {
+        if(sw != this) return sw;
+    }
+
+    return nullptr;
 }
 
 void SplitWidget::split(Qt::Orientation orientation) {

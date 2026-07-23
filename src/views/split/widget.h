@@ -32,7 +32,7 @@ private Q_SLOTS:
     void update_close_button();
 
 private:
-    [[nodiscard]] QToolBar* create_toolbar();
+    [[nodiscard]] SplitWidget* find_sibling_to_focus() const;
     void split(Qt::Orientation orientation);
 
 private:

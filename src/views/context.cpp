@@ -22,7 +22,8 @@ ContextView::ContextView(RDContext* ctx, QWidget* parent)
     connect(m_ui.tvfunctions, &QTreeView::doubleClicked, this,
             [&](const QModelIndex& index) {
                 RDAddress address = m_functionsmodel->address(index);
-                m_ui.splitview->surface()->jump_to(address);
+                if(m_ui.splitview->surface())
+                    m_ui.splitview->surface()->jump_to(address);
             });
 }
 
