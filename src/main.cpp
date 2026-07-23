@@ -2,6 +2,8 @@
 #include "support/themeprovider.h"
 #include "support/utils.h"
 #include <QApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QStandardPaths>
@@ -130,6 +132,15 @@ int main(int argc, char** argv) {
     QApplication app{argc, argv};
     app.setApplicationName("redasm");
     app.setApplicationDisplayName(QString{"REDasm %1"}.arg(rd_version()));
+    app.setApplicationVersion(rd_version());
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription("The OpenSource Disassembler");
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    parser.addPositionalArgument("file", "File to be analyzed");
+    parser.process(app);
 
     int res = 0;
 
@@ -143,6 +154,11 @@ int main(int argc, char** argv) {
 
         MainWindow mw{params};
         load_modules();
+
+        // process command line argument
+        const QStringList ARGS = parser.positionalArguments();
+        if(!ARGS.isEmpty() && QFileInfo{ARGS.first()}.isFile())
+            mw.open_file(ARGS.first());
 
         mw.show();
         res = app.exec();

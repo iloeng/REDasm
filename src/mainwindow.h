@@ -12,6 +12,7 @@ public:
     ~MainWindow() override;
     [[nodiscard]] ContextView* context_view() const;
     void log(RDLogLevel level, const QString& tag, const QString& msg);
+    void open_file(const QString& filepath);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* e) override;
@@ -36,7 +37,6 @@ private Q_SLOTS:
     void show_welcome_view();
     void show_problems();
     void open_project(const QString& filepath);
-    void open_file(const QString& filepath);
 
 private:
     [[nodiscard]] bool can_close() const;
