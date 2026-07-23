@@ -25,7 +25,6 @@ struct LoaderDialog {
     QDialogButtonBox* buttonbox;
 
     explicit LoaderDialog(QDialog* self) {
-        self->setAttribute(Qt::WA_DeleteOnClose);
         self->setWindowTitle("Loader");
         self->resize(540, 550);
         self->setModal(true);

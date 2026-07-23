@@ -392,10 +392,14 @@ void MainWindow::open_file(const QString& filepath) {
                 rd_accept(dlgloader->sel_test, &dlgloader->accept_params);
 
             switch(res.status) {
-                case RD_ACCEPT_OK: this->select_analyzers(res.context); return;
+                case RD_ACCEPT_OK:
+                    this->select_analyzers(res.context);
+                    dlgloader->deleteLater();
+                    return;
 
                 case RD_ACCEPT_FAIL:
                     QMessageBox::warning(this, "Loader", "Loading aborted");
+                    dlgloader->deleteLater();
                     return;
 
                 case RD_ACCEPT_FAIL_WRITE: {
@@ -405,6 +409,7 @@ void MainWindow::open_file(const QString& filepath) {
 
                     if(newpath.isEmpty()) {
                         rd_reject();
+                        dlgloader->deleteLater();
                         return;
                     }
 
@@ -417,7 +422,11 @@ void MainWindow::open_file(const QString& filepath) {
         }
     });
 
-    connect(dlgloader, &LoaderDialog::rejected, this, []() { rd_reject(); });
+    connect(dlgloader, &LoaderDialog::rejected, this, [dlgloader]() {
+        rd_reject();
+        dlgloader->deleteLater();
+    });
+
     dlgloader->open();
 }
 
