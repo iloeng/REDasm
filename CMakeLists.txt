@@ -121,21 +121,27 @@ set_target_properties(${PROJECT_NAME}
 )
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    if(EXISTS "${CMAKE_SOURCE_DIR}/lsan.supp")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lsan.supp")
         configure_file(
-            "${CMAKE_SOURCE_DIR}/lsan.supp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/lsan.supp"
             "${CMAKE_CURRENT_BINARY_DIR}/lsan.supp"
             COPYONLY
         )
     endif()
 
-    if(EXISTS "${CMAKE_SOURCE_DIR}/asan.supp")
-            configure_file(
-                "${CMAKE_SOURCE_DIR}/asan.supp"
-                "${CMAKE_CURRENT_BINARY_DIR}/asan.supp"
-                COPYONLY
-            )
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/asan.supp")
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/asan.supp"
+            "${CMAKE_CURRENT_BINARY_DIR}/asan.supp"
+            COPYONLY
+        )
     endif()
+
+    target_compile_definitions(${PROJECT_NAME} 
+        PRIVATE
+            ASAN_SUPP_PATH="${CMAKE_CURRENT_BINARY_DIR}/asan.supp"
+            LSAN_SUPP_PATH="${CMAKE_CURRENT_BINARY_DIR}/lsan.supp"
+    )
 endif()
 
 

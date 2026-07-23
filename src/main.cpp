@@ -8,6 +8,14 @@
 #include <QString>
 #include <QStyleFactory>
 
+#if defined(_WIN32)
+#include <io.h>
+#define ACCESS _access
+#else
+#include <unistd.h>
+#define ACCESS access
+#endif
+
 namespace {
 
 void configure_search_paths() {
@@ -97,11 +105,17 @@ void load_modules() {
 #if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
 
 extern "C" const char* __asan_default_options() { // NOLINT
-    return "suppressions=asan.supp:print_suppressions=0";
+    if(ACCESS(ASAN_SUPP_PATH, 0) == 0)
+        return "suppressions=" ASAN_SUPP_PATH ":print_suppressions=0";
+
+    return nullptr;
 }
 
 extern "C" const char* __lsan_default_options() { // NOLINT
-    return "suppressions=lsan.supp:print_suppressions=0";
+    if(ACCESS(LSAN_SUPP_PATH, 0) == 0)
+        return "suppressions=" LSAN_SUPP_PATH ":print_suppressions=0";
+
+    return nullptr;
 }
 
 extern "C" const char* __lsan_default_suppressions() { // NOLINT
