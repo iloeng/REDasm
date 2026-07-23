@@ -8,8 +8,6 @@ SurfaceView::SurfaceView(RDContext* ctx, QWidget* parent): QSplitter{parent} {
     this->setStyleSheet("QSplitter::handle { background-color: " +
                         theme_provider::color(RD_THEME_SEEK).name() + "; }");
 
-    this->setFocusPolicy(Qt::NoFocus);
-
     m_surfacelisting = new SurfaceListing(ctx);
     m_surfacepath = new SurfacePath(m_surfacelisting);
 

@@ -7,6 +7,28 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+namespace {
+
+void _splitwidget_collapse_empty_splitters(QSplitter* splitter) {
+    while(splitter && splitter->count() == 1) {
+        auto* pparent = qobject_cast<QSplitter*>(splitter->parentWidget());
+
+        // top level SplitView itself, nothing to collapse into
+        if(!pparent) break;
+
+        int idx = pparent->indexOf(splitter);
+        QWidget* remaining = splitter->widget(0);
+
+        pparent->replaceWidget(idx, remaining); // keeps pparent's sizes intact
+        splitter->deleteLater();
+
+        // keep collapsing upward if this made pparent single-child too
+        splitter = pparent;
+    }
+}
+
+} // namespace
+
 SplitWidget::SplitWidget(SplitView* view): m_view{view} {
     m_tbactions = new QToolBar();
     m_tbactions->setIconSize({16, 16});
@@ -27,17 +49,15 @@ SplitWidget::SplitWidget(SplitView* view): m_view{view} {
 
     m_view->inc_count();
     view->set_selected_widget(this);
+
+    connect(qApp, &QApplication::focusChanged, this,
+            [this](QWidget*, QWidget* now) {
+                if(now && this->isAncestorOf(now))
+                    m_view->set_selected_widget(this);
+            });
 }
 
-SplitWidget::~SplitWidget() {
-    // if(m_view->current_split() == this) m_view->set_selected_widget(nullptr);
-    m_view->dec_count();
-}
-
-void SplitWidget::focusInEvent(QFocusEvent* event) {
-    m_view->set_selected_widget(this);
-    QWidget::focusInEvent(event);
-}
+SplitWidget::~SplitWidget() { m_view->dec_count(); }
 
 QAction* SplitWidget::action(int idx) const {
     auto actions = m_tbactions->actions();
@@ -105,17 +125,23 @@ void SplitWidget::open_in_dialog() {
 
 void SplitWidget::close_widget() {
     auto* psplitter = qobject_cast<QSplitter*>(this->parentWidget());
+    if(!psplitter) return;
 
-    if(psplitter) {
-        QList<int> sizes = psplitter->sizes();
-        sizes.removeAt(psplitter->indexOf(this));
-        this->deleteLater();
-        psplitter->setSizes(sizes);
-    }
+    QList<int> sizes = psplitter->sizes();
+    sizes.removeAt(psplitter->indexOf(this));
+
+    if(m_view->current_split() == this) m_view->set_selected_widget(nullptr);
+
+    connect(this, &QObject::destroyed, psplitter, [psplitter]() {
+        _splitwidget_collapse_empty_splitters(psplitter);
+    });
+
+    this->deleteLater();
+    psplitter->setSizes(sizes);
 }
 
 void SplitWidget::update_close_button() {
-    m_actclose->setVisible(m_view->count() > 1);
+    if(m_actclose) m_actclose->setVisible(m_view->count() > 1);
 }
 
 void SplitWidget::split(Qt::Orientation orientation) {
@@ -131,7 +157,8 @@ void SplitWidget::split(Qt::Orientation orientation) {
         ssplitter->addWidget(this);
         ssplitter->addWidget(new SplitWidget(m_view));
 
-        sizes.append(sizes[index] / 2);
+        int half = sizes[index] / 2;
+        ssplitter->setSizes({half, half});
         psplitter->setSizes(sizes);
     }
     else

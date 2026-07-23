@@ -28,9 +28,6 @@ public Q_SLOTS:
     void open_in_dialog();
     void close_widget();
 
-protected:
-    void focusInEvent(QFocusEvent* event) override;
-
 private Q_SLOTS:
     void update_close_button();
 
