@@ -74,7 +74,6 @@ QAction* SplitWidget::add_button(QAction* action) {
 }
 
 QWidget* SplitWidget::add_widget(QWidget* w) {
-    w->setParent(m_tbactions);
     m_tbactions->addWidget(w);
     return w;
 }
