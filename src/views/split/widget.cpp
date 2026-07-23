@@ -29,7 +29,10 @@ SplitWidget::SplitWidget(SplitView* view): m_view{view} {
     view->set_selected_widget(this);
 }
 
-SplitWidget::~SplitWidget() { m_view->dec_count(); }
+SplitWidget::~SplitWidget() {
+    // if(m_view->current_split() == this) m_view->set_selected_widget(nullptr);
+    m_view->dec_count();
+}
 
 void SplitWidget::focusInEvent(QFocusEvent* event) {
     m_view->set_selected_widget(this);
