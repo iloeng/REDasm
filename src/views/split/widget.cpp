@@ -29,13 +29,13 @@ void _splitwidget_collapse_empty_splitters(QSplitter* splitter) {
 
 } // namespace
 
-SplitWidget::SplitWidget(SplitView* view): m_view{view} {
+SplitWidget::SplitWidget(SplitView* view, SplitWidget* splitfrom)
+    : m_view{view} {
     m_tbactions = new QToolBar();
     m_tbactions->setIconSize({16, 16});
     m_tbactions->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
-    m_widget =
-        view->split_delegate()->create_widget(this, view->current_split());
+    m_widget = view->split_delegate()->create_widget(this, splitfrom);
 
     auto* vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -181,12 +181,12 @@ void SplitWidget::split(Qt::Orientation orientation) {
         int index = psplitter->indexOf(this);
         psplitter->insertWidget(index, ssplitter);
         ssplitter->addWidget(this);
-        ssplitter->addWidget(new SplitWidget(m_view));
+        ssplitter->addWidget(new SplitWidget(m_view, this));
 
         int half = sizes[index] / 2;
         ssplitter->setSizes({half, half});
         psplitter->setSizes(sizes);
     }
     else
-        psplitter->addWidget(new SplitWidget(m_view));
+        psplitter->addWidget(new SplitWidget(m_view, this));
 }

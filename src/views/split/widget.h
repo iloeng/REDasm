@@ -9,7 +9,7 @@ class SplitWidget: public QWidget {
     Q_OBJECT
 
 private:
-    explicit SplitWidget(SplitView* view);
+    explicit SplitWidget(SplitView* view, SplitWidget* splitfrom = nullptr);
 
 public:
     ~SplitWidget() override;
