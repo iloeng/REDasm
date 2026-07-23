@@ -14,6 +14,7 @@
 #include <QDesktopServices>
 #include <QHash>
 #include <QInputDialog>
+#include <cinttypes>
 
 namespace actions {
 
@@ -288,6 +289,11 @@ void refs_to() {
 
     auto address = cv->surface()->get_address_under_cursor();
     if(!address) return;
+
+    if(!rd_has_refs_to(cv->context(), *address)) {
+        RD_LOG_INFO("no xrefs to %" PRIx64, *address);
+        return;
+    }
 
     auto* dlg = new TableDialog(
         QString("References to %1").arg(rd_to_hexaddr(cv->context(), *address)),
