@@ -19,7 +19,7 @@ void compile_config(QTextBrowser* txb) {
 
     txb->setLineWrapMode(QTextBrowser::NoWrap);
     txb->insertHtml(VERSION_CONTENT.arg(QT_VERSION_STR)
-                        .arg(rd_build_version())
+                        .arg(rd_version_build())
                         .arg(RD_API_LEVEL));
 
     if(!utils::search_paths.isEmpty()) {

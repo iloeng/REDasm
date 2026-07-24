@@ -131,8 +131,9 @@ int main(int argc, char** argv) {
 
     QApplication app{argc, argv};
     app.setApplicationName("redasm");
-    app.setApplicationDisplayName(QString{"REDasm %1"}.arg(rd_version()));
-    app.setApplicationVersion(rd_version());
+    app.setApplicationDisplayName(
+        QString{"REDasm %1"}.arg(rd_version_string()));
+    app.setApplicationVersion(rd_version_string());
 
     QCommandLineParser parser;
     parser.setApplicationDescription("The OpenSource Disassembler");
